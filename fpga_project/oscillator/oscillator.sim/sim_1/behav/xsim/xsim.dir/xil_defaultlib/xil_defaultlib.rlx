@@ -1,0 +1,11 @@
+0.6
+2018.3
+Dec  7 2018
+00:33:28
+C:/Users/ukero/OneDrive/Pulpit/2s1sem/moje/SDUP/fpga_project/oscillator/oscillator.sim/sim_1/behav/xsim/glbl.v,1544155481,verilog,,,,glbl,,,,,,,,
+C:/Users/ukero/OneDrive/Pulpit/2s1sem/moje/SDUP/fpga_project/oscillator/oscillator.srcs/sim_1/new/tb_sync_baseline.v,1779189338,verilog,,,,tb_sync_baseline,,,,,,,,
+C:/Users/ukero/OneDrive/Pulpit/2s1sem/moje/SDUP/fpga_project/oscillator/oscillator.srcs/sources_1/new/async_ro_carry.v,1779186814,verilog,,C:/Users/ukero/OneDrive/Pulpit/2s1sem/moje/SDUP/fpga_project/oscillator/oscillator.srcs/sources_1/new/async_ro_loopback.v,,async_ro_carry,,,,,,,,
+C:/Users/ukero/OneDrive/Pulpit/2s1sem/moje/SDUP/fpga_project/oscillator/oscillator.srcs/sources_1/new/async_ro_loopback.v,1779184820,verilog,,C:/Users/ukero/OneDrive/Pulpit/2s1sem/moje/SDUP/fpga_project/oscillator/oscillator.srcs/sources_1/new/freq_counter.v,,async_ro_loopback,,,,,,,,
+C:/Users/ukero/OneDrive/Pulpit/2s1sem/moje/SDUP/fpga_project/oscillator/oscillator.srcs/sources_1/new/freq_counter.v,1779184811,verilog,,C:/Users/ukero/OneDrive/Pulpit/2s1sem/moje/SDUP/fpga_project/oscillator/oscillator.srcs/sources_1/new/sync_baseline.v,,freq_counter,,,,,,,,
+C:/Users/ukero/OneDrive/Pulpit/2s1sem/moje/SDUP/fpga_project/oscillator/oscillator.srcs/sources_1/new/sync_baseline.v,1779184599,verilog,,C:/Users/ukero/OneDrive/Pulpit/2s1sem/moje/SDUP/fpga_project/oscillator/oscillator.srcs/sim_1/new/tb_sync_baseline.v,,sync_baseline,,,,,,,,
+C:/Users/ukero/OneDrive/Pulpit/2s1sem/moje/SDUP/fpga_project/oscillator/oscillator.srcs/sources_1/new/top_system.v,1779186787,verilog,,,,top_system,,,,,,,,

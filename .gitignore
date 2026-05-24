@@ -1,0 +1,47 @@
+# ==========================================================
+# Vivado build artifacts — wszystko regenerowane z .xpr + .v + .xdc
+# ==========================================================
+
+# Per-project build dirs
+*.cache/
+*.hw/
+*.ip_user_files/
+*.runs/
+*.sim/
+*.srcs/sources_1/ip/*/*.dcp
+*.srcs/sources_1/bd/*/synth/
+*.srcs/sources_1/bd/*/sim/
+*.gen/
+
+# Vivado misc temp/log
+.Xil/
+*.jou
+*.log
+*.str
+*.pb
+*.wdb
+*.wcfg
+*.xpe
+*.zip
+vivado_*.backup.jou
+vivado_*.backup.log
+
+# Webtalk (telemetria Xilinx)
+usage_statistics_*.html
+usage_statistics_*.xml
+webtalk*.tcl
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor temp
+*.swp
+*~
+.vscode/
+
+# ==========================================================
+# Keep finalny bitstream (opcjonalnie — duży plik, mozna zostawić tracked)
+# ==========================================================
+!*.bit

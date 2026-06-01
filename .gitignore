@@ -48,3 +48,9 @@ desktop.ini
 
 # Xilinx SDK workspace (build artifact, regen z .hdf + sw/main.c)
 *.sdk/
+
+# Analysis generated outputs (regenerowalne)
+analysis/exp0*.csv
+analysis/*_summary.csv
+analysis/fig_*.png
+analysis/pomiar*.csv

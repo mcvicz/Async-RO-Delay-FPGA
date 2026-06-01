@@ -31,9 +31,10 @@ set_false_path -through [get_nets -hier -filter {NAME =~ *inst_lut/chain*}]
 # Bez tego DRC LUTLP-1 blokuje write_bitstream. Potwierdzamy ze petla jest
 # zamierzona (to istota projektu -- async ring oscillator).
 #=============================================================================
-set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets -quiet -hier -filter {NAME =~ *inst_lut/chain*}]
-set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets -quiet -hier -filter {NAME =~ *inst_lut/ring_feedback*}]
-set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets -quiet -hier -filter {NAME =~ *inst_lut/loop_in*}]
-set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets -quiet -hier -filter {NAME =~ *inst_carry/tap_bus*}]
-set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets -quiet -hier -filter {NAME =~ *inst_carry/ring_feedback*}]
-set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets -quiet -hier -filter {NAME =~ *inst_carry/loop_in*}]
+# Jeden combined filter (XDC nie wspiera foreach/if). Lista niepusta bo
+# inst_lut/chain zawsze istnieje (to ta petla flagowana przez LUTLP).
+# Carry nets dolaczone -- jak nie istnieja w netliscie, po prostu pominiete.
+set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets -quiet -hier -filter { \
+    NAME =~ *inst_lut/chain* || NAME =~ *inst_lut/ring_feedback* || \
+    NAME =~ *inst_lut/loop_in* || NAME =~ *inst_carry/tap_bus* || \
+    NAME =~ *inst_carry/ring_feedback* || NAME =~ *inst_carry/loop_in* }]

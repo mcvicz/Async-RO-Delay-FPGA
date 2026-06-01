@@ -58,24 +58,32 @@ int main()
     const char *names[4] = { "sync", "carry", "loopback", "lut" };
 
     printf("\r\n=== Async Ring Oscillator -- pomiar f ===\r\n");
-    printf("sample,variant,tap,edges,freq_kHz\r\n");
+    // Kanoniczna schema CSV (zgodna z analysis/*.py):
+    //   sample,timestamp_ms,variant,tap,edges,freq_khz,temp_c
+    // timestamp_ms = przyblizony znacznik czasu (sample * okno + usleep)
+    // temp_c = 0 placeholder (XADC w F8; do f(T) wpisac realne odczyty)
+    printf("sample,timestamp_ms,variant,tap,edges,freq_khz,temp_c\r\n");
 
     int sample = 0;
+    u32 t_ms = 0;
+    const int temp_c = 0;   // placeholder do czasu wpiecia XADC
 
     // Sweep f(N): wariant CARRY4, rozne tap
     for (u8 tap = 4; tap <= 63; tap += 4) {
         u32 edges = measure(1 /*carry*/, tap);
         u32 freq_khz = edges * PRESCALER / WINDOW_MS;   // edges*256 per 1ms = kHz
-        printf("%d,%s,%u,%u,%u\r\n", sample++, names[1], tap, edges, freq_khz);
-        usleep(100000);
+        printf("%d,%u,%s,%u,%u,%u,%d\r\n",
+               sample++, t_ms, names[1], tap, edges, freq_khz, temp_c);
+        t_ms += 100; usleep(100000);
     }
 
     // Porownanie wariantow przy tap=63
     for (u8 v = 0; v < 4; v++) {
         u32 edges = measure(v, 63);
         u32 freq_khz = edges * PRESCALER / WINDOW_MS;
-        printf("%d,%s,63,%u,%u\r\n", sample++, names[v], edges, freq_khz);
-        usleep(100000);
+        printf("%d,%u,%s,63,%u,%u,%d\r\n",
+               sample++, t_ms, names[v], edges, freq_khz, temp_c);
+        t_ms += 100; usleep(100000);
     }
 
     // Ciagly monitoring wybranego wariantu (do jittera/drift)
@@ -83,8 +91,9 @@ int main()
     while (1) {
         u32 edges = measure(1, 32);
         u32 freq_khz = edges * PRESCALER / WINDOW_MS;
-        printf("%d,carry,32,%u,%u\r\n", sample++, edges, freq_khz);
-        usleep(500000);
+        printf("%d,%u,carry,32,%u,%u,%d\r\n",
+               sample++, t_ms, edges, freq_khz, temp_c);
+        t_ms += 500; usleep(500000);
     }
 
     return 0;

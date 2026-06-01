@@ -45,3 +45,6 @@ desktop.ini
 # Keep finalny bitstream (opcjonalnie — duży plik, mozna zostawić tracked)
 # ==========================================================
 !*.bit
+
+# Xilinx SDK workspace (build artifact, regen z .hdf + sw/main.c)
+*.sdk/

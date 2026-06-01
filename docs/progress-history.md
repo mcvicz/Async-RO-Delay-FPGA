@@ -15,6 +15,7 @@ Chronologiczna historia projektu. Dopisujemy na bieżąco po każdej sesji.
 - **F5 kod C** — `sw/main.c`, bare-metal ARM: czyta freq przez AXI, sweep f(N), CSV przez UART. Build OK w SDK (`.elf`). Commit `d8dc0cd`.
 - **F9 prep** — pakiet `analysis/`: gen_sample_data, log_capture (UART), plot_fN/jitter/drift/fT, compare_sync_async. 5 wykresów z danych syntetycznych. Commit `2af8d10`.
 - **Audyt** — naprawiony mismatch schema CSV (main.c 5-kol → 7-kol kanoniczne, zgodne z analizą). Utworzony folder `docs/`.
+- **F8 prep — XADC** — `main.c` czyta temperaturę krzemu przez PS XADC (driver `xadcps`, `XPAR_XADCPS_0`). Realny `temp_c` w CSV zamiast placeholder → EXP_04 f(T) ruszy od razu na płytce. Zero zmian RTL/BD (PS XADC, nie PL).
 
 ### Ustalenia techniczne
 - 2018.3 używa **SDK** (nie Vitis), Export = `.hdf`

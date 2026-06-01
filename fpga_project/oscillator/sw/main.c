@@ -1,8 +1,8 @@
 //=============================================================================
 // main.c -- bare-metal ARM (Zynq PS) odczyt freq_counter przez AXI-Lite
 //
-// Kopiuj do projektu aplikacji w Vitis (po Export Hardware + Launch Vitis).
-// Wymaga: platform BSP z UART (domyslny stdout na PS UART1 ZedBoard).
+// Kopiuj do projektu aplikacji w Xilinx SDK (2018.3) po Export Hardware.
+// Wymaga: BSP z UART (stdout na PS UART1) + driver xadcps (PS XADC, temp).
 //
 // MAPA REJESTROW (offset od bazy AXI, sprawdz w Address Editor / xparameters.h):
 //   0x00 freq_count [31:0]  RO -- zbocza w oknie 1ms (po prescalerze /256)
@@ -17,6 +17,7 @@
 #include "xparameters.h"
 #include "xil_io.h"
 #include "sleep.h"
+#include "xadcps.h"     // PS XADC -- temperatura krzemu (F8: f(T))
 
 // Baza AXI -- z xparameters.h: XPAR_OSC_AXI_SYSTEM_0_BASEADDR = 0x43C00000
 #ifdef XPAR_OSC_AXI_SYSTEM_0_BASEADDR
@@ -53,27 +54,58 @@ u32 measure(u8 variant, u8 tap)
     return osc_read(REG_FREQ);
 }
 
+//=============================================================================
+// PS XADC -- temperatura krzemu (do EXP_04 f(T))
+//=============================================================================
+static XAdcPs xadc;
+
+int xadc_init(void)
+{
+    XAdcPs_Config *cfg = XAdcPs_LookupConfig(XPAR_XADCPS_0_DEVICE_ID);
+    if (cfg == NULL) return XST_FAILURE;
+    if (XAdcPs_CfgInitialize(&xadc, cfg, cfg->BaseAddress) != XST_SUCCESS)
+        return XST_FAILURE;
+    XAdcPs_SetSequencerMode(&xadc, XADCPS_SEQ_MODE_SAFE);
+    return XST_SUCCESS;
+}
+
+// Temperatura *10 (jako int -- unikamy printf float w standalone).
+// np. 423 = 42.3 C
+int xadc_temp_x10(void)
+{
+    u32 raw = XAdcPs_GetAdcData(&xadc, XADCPS_CH_TEMP);
+    float t = XAdcPs_RawToTemperature(raw);
+    return (int)(t * 10.0f);
+}
+
 int main()
 {
     const char *names[4] = { "sync", "carry", "loopback", "lut" };
 
     printf("\r\n=== Async Ring Oscillator -- pomiar f ===\r\n");
+
+    // Init XADC (temperatura krzemu). Jak brak -> temp = 0.
+    int have_xadc = (xadc_init() == XST_SUCCESS);
+    if (!have_xadc) printf("# WARN: XADC init fail, temp_c = 0\r\n");
+
     // Kanoniczna schema CSV (zgodna z analysis/*.py):
     //   sample,timestamp_ms,variant,tap,edges,freq_khz,temp_c
-    // timestamp_ms = przyblizony znacznik czasu (sample * okno + usleep)
-    // temp_c = 0 placeholder (XADC w F8; do f(T) wpisac realne odczyty)
     printf("sample,timestamp_ms,variant,tap,edges,freq_khz,temp_c\r\n");
 
     int sample = 0;
     u32 t_ms = 0;
-    const int temp_c = 0;   // placeholder do czasu wpiecia XADC
+
+    // makro: realna temp (x10 -> int.dec) lub 0
+    #define TEMP10 (have_xadc ? xadc_temp_x10() : 0)
+    #define PT(t) (t)/10, (t)<0 ? -((t)%10) : (t)%10   // znak + ulamek
 
     // Sweep f(N): wariant CARRY4, rozne tap
     for (u8 tap = 4; tap <= 63; tap += 4) {
         u32 edges = measure(1 /*carry*/, tap);
         u32 freq_khz = edges * PRESCALER / WINDOW_MS;   // edges*256 per 1ms = kHz
-        printf("%d,%u,%s,%u,%u,%u,%d\r\n",
-               sample++, t_ms, names[1], tap, edges, freq_khz, temp_c);
+        int t = TEMP10;
+        printf("%d,%u,%s,%u,%u,%u,%d.%d\r\n",
+               sample++, t_ms, names[1], tap, edges, freq_khz, PT(t));
         t_ms += 100; usleep(100000);
     }
 
@@ -81,18 +113,20 @@ int main()
     for (u8 v = 0; v < 4; v++) {
         u32 edges = measure(v, 63);
         u32 freq_khz = edges * PRESCALER / WINDOW_MS;
-        printf("%d,%u,%s,63,%u,%u,%d\r\n",
-               sample++, t_ms, names[v], edges, freq_khz, temp_c);
+        int t = TEMP10;
+        printf("%d,%u,%s,63,%u,%u,%d.%d\r\n",
+               sample++, t_ms, names[v], edges, freq_khz, PT(t));
         t_ms += 100; usleep(100000);
     }
 
-    // Ciagly monitoring wybranego wariantu (do jittera/drift)
+    // Ciagly monitoring CARRY4 tap=32 (do jittera/drift/f(T) -- grzej chip)
     printf("\r\n--- monitoring CARRY4 tap=32 (Ctrl+C aby przerwac) ---\r\n");
     while (1) {
         u32 edges = measure(1, 32);
         u32 freq_khz = edges * PRESCALER / WINDOW_MS;
-        printf("%d,%u,carry,32,%u,%u,%d\r\n",
-               sample++, t_ms, edges, freq_khz, temp_c);
+        int t = TEMP10;
+        printf("%d,%u,carry,32,%u,%u,%d.%d\r\n",
+               sample++, t_ms, edges, freq_khz, PT(t));
         t_ms += 500; usleep(500000);
     }
 

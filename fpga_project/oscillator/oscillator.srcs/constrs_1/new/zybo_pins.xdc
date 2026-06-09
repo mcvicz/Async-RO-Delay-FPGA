@@ -44,3 +44,12 @@ set_false_path -through [get_nets -hier -filter {NAME =~ *inst_carry/selected_ta
 set_false_path -through [get_nets -hier -filter {NAME =~ *inst_lut/ring_feedback*}]
 set_false_path -through [get_nets -hier -filter {NAME =~ *inst_lut/loop_in*}]
 set_false_path -through [get_nets -hier -filter {NAME =~ *inst_lut/chain*}]
+
+#=============================================================================
+# ALLOW_COMBINATORIAL_LOOPS -- celowa petla (ring). Bez tego DRC LUTLP-1
+# blokuje write_bitstream. Combined filter (XDC bez foreach/if).
+#=============================================================================
+set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets -quiet -hier -filter { \
+    NAME =~ *inst_lut/chain* || NAME =~ *inst_lut/ring_feedback* || \
+    NAME =~ *inst_lut/loop_in* || NAME =~ *inst_carry/tap_bus* || \
+    NAME =~ *inst_carry/ring_feedback* || NAME =~ *inst_carry/loop_in* }]

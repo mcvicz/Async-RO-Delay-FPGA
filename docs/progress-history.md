@@ -4,6 +4,31 @@ Chronologiczna historia projektu. Dopisujemy na bieżąco po każdej sesji.
 
 ---
 
+## Sesja 4 — 2026-06-09 (Zybo na żywo)
+
+**Cel:** uruchomienie na fizycznej płytce. Jamro dał **Zybo Z7-10 (xc7z010clg400-1)** — inny chip niż ZedBoard (xc7z020).
+
+### Zrobione
+- **Pivot na Zybo Z7-10** — zmiana części xc7z020→xc7z010, top = `top_system_zybo` (standalone PL, bez PS)
+- **`zybo_pins.xdc`** — piny Zybo (clk 125MHz L16, SW0-3, LED0-3, Pmod JE) + `ALLOW_COMBINATORIAL_LOOPS`
+- **Bitstream `top_system_zybo.bit`** wygenerowany, 0 errors, 77 CARRY4
+- **FLASH NA PŁYTCE — DZIAŁA** ✓ Ring oscillator na realnym krzemie:
+  - LD0 miga ~2Hz (alive, PL żyje)
+  - SW0/SW1 → mux wariantu (LD1/LD2 echo)
+  - LD3 = wybrany oscylator: **miga dla sync (00), ciągły dla async** (ring setki MHz, za szybki dla oka) — wizualny dowód różnicy sync vs async
+  - SW2/SW3 = strojenie tap CARRY4
+
+### Walka z Vivado (lekcja)
+- Multi-top ambiguity (top_system / top_system_zybo / osc_axi_system) → Vivado auto-top ciągle nadpisywał. Popup "auto pick top" + tryb hierarchii.
+- BD (system.bd) pod ZedBoard zablokowany po zmianie części → psuł walidację hierarchii, IP locked errors.
+- **Rozwiązanie:** usunięto z PROJEKTU (nie z dysku/git): system.bd + wrapper + osc_axi_system.v + freq_counter_axi.v + top_system.v. Został top_system_zybo jako jedyny top → czysto. Re-add świeży top_system_zybo.v dobił indeksowanie.
+- BD/ZedBoard wszystko bezpieczne w git `fad7a58` + backup `../_backup_zybo/`.
+
+### Stan: ring DZIAŁA na krzemie. ~78%.
+Brakuje: twarde pomiary (CSV/UART wymaga BD+PS pod Zybo — odłożone), F6 loopback (zworka), raport.
+
+---
+
 ## Sesja 3 — 2026-06-02
 
 **Cel:** F5 (Block Design + ARM) na całość + F9 prep + audyt.

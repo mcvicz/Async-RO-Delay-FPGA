@@ -1,49 +1,58 @@
 # Przewodnik po projekcie — Async Ring Oscillator na FPGA
 
-**Pełna dokumentacja techniczna. Aktualizowana na bieżąco, commitowana z projektem.**
+**Pełna dokumentacja techniczna — stan FINALNY (na krzemie).**
 
 Autorzy: Paweł Michalcewicz, Krzysztof Podoba · Prowadzący: dr inż. Jamro
-Platforma: ZedBoard Zynq-7020 (`xc7z020clg484-1`), Vivado 2018.3 + Xilinx SDK
+Platforma finalna: **Digilent Zybo Z7-10 — Zynq-7010 (`xc7z010clg400-1`)**, Vivado 2018.3
+
+> Uwaga historyczna: projekt zaczynał na ZedBoard (xc7z020). Prowadzący dał Zybo Z7-10 —
+> pivot na inny chip, standalone PL, pomiar przez ILA. Stare dokumenty ZedBoard:
+> `docs/past_versions/`.
 
 ---
 
 ## 1. Czym jest projekt
 
-Asynchroniczny generator częstotliwości (**ring oscillator**) zbudowany z elementów **innych niż LUT** (głównie CARRY4), porównany z synchronicznym licznikiem referencyjnym.
+Asynchroniczny generator częstotliwości (**ring oscillator**) zbudowany z elementów **innych niż LUT** (głównie CARRY4), porównany z synchronicznym licznikiem referencyjnym — **uruchomiony i zmierzony na realnym krzemie**.
 
-**Teza:** FPGA jest narzędziem dla układów synchronicznych. Łamiemy ten paradygmat — pętla bez zegara, której częstotliwość zależy od **fizyki krzemu** (opóźnienia bramek, temperatura, napięcie, wariacje produkcyjne). FPGA staje się sensorem własnego krzemu.
+**Teza:** FPGA jest narzędziem dla układów synchronicznych. Łamiemy ten paradygmat — pętla bez zegara, której częstotliwość zależy od **fizyki krzemu** (opóźnienia bramek, temperatura, napięcie, wariacje). FPGA staje się sensorem własnego krzemu.
 
 **Zastosowania:** TRNG (kryptografia), PUF (fingerprint krzemu), krzemowy termometr.
 
 ---
 
-## 2. Architektura systemu
+## 2. Architektura systemu (stan finalny — standalone PL + ILA)
 
 ```
-┌─────────────────────── PL (FPGA fabric) ────────────────────────┐
-│  4 warianty oscylatora:                                          │
-│   sync_baseline   (licznik 100MHz -- referencja)                 │
-│   async_ro_carry  (64x CARRY4 ring + tap selector)               │
-│   async_ro_loopback (petla przez Pmod -- F6, placeholder)        │
-│   async_ro_lut    (15x LUT1 inverter ring)                       │
-│           │                                                      │
-│           ▼ sw_mode / osc_select                                 │
-│        ┌──────┐    ┌────────────┐    ┌──────────────┐            │
-│        │ MUX  │───▶│ prescaler  │───▶│ freq_counter │            │
-│        └──────┘    │   /256     │    │  okno 1ms    │            │
-│                    └────────────┘    │  + 2FF sync  │            │
-│                                       └──────┬───────┘            │
-│                                  freq_counter_axi (AXI-Lite slave)│
-└───────────────────────────────────────────────┼─────────────────┘
-                                                  │ AXI-Lite @ 0x43C00000
-┌─────────────────────── PS (Zynq ARM) ──────────┼─────────────────┐
-│  ARM Cortex-A9: czyta freq, steruje osc/tap     │                 │
-│  main.c -> CSV przez UART (115200)              ▼                 │
-└──────────────────────────────────────────── UART ────────────────┘
-                                                  │
-                                          PC: log_capture.py -> CSV
-                                          analysis/*.py -> wykresy
+┌─────────────────────── PL (FPGA fabric, Zybo Z7-10) ─────────────────────┐
+│  4 warianty oscylatora (wybór SW0/SW1):                                   │
+│   sync_baseline      (licznik clk/16 @125MHz -- referencja 7.8 MHz)       │
+│   async_ro_carry     (64x CARRY4 ring + tap selector SW2/SW3)             │
+│   async_ro_loopback  (petla przez Pmod JE1<->JE2 -- F6, kabelek)          │
+│   async_ro_lut       (15x LUT1 inverter ring)                             │
+│           │                                                               │
+│           ▼ osc_selected                                                  │
+│        ┌──────┐    ┌────────────┐    ┌──────────────┐                     │
+│        │ MUX  │───▶│ prescaler  │───▶│ freq_counter │                     │
+│        └──────┘    │   /16      │    │  okno 1ms    │                     │
+│                    │ (ripple,   │    │  + 2FF sync  │                     │
+│                    │  async)    │    └──────┬───────┘                     │
+│                    └────────────┘    freq_count[31:0] (* mark_debug *)    │
+│                                              │                            │
+│                                       ┌──────▼───────┐                    │
+│                                       │  rdzen ILA   │ bufor 4096         │
+│                                       │ storage qual │ (freq_valid==1)    │
+│                                       └──────┬───────┘                    │
+└──────────────────────────────────────────────┼──────────────────────────┘
+                                                │ JTAG
+                                        PC: Hardware Manager
+                                        Export CSV -> analysis/ila_*.py -> wykresy
 ```
+
+**Realna f = `freq_count × 16 kHz`** (prescaler /16, okno 1 ms).
+
+### Alternatywny tor (F5, zaprojektowany — NIE odpalony na Zybo)
+Block Design: Zynq PS7 + AXI Interconnect + `osc_axi_system` (AXI4-Lite slave @0x43C00000) → ARM Cortex-A9 (`sw/main.c`) → UART → PC. Bitstream wygenerowany na ZedBoard (0 errors). Na Zybo wymagałby rekonfiguracji PS7 → użyliśmy prostszego ILA.
 
 ---
 
@@ -51,107 +60,87 @@ Asynchroniczny generator częstotliwości (**ring oscillator**) zbudowany z elem
 
 | Plik | Rola | Stan |
 |---|---|---|
-| `sync_baseline.v` | Licznik N-bit @ 100MHz, referencja | ✅ |
-| `async_ro_carry.v` | 64× CARRY4 ring + 6-bit tap mux, dont_touch/keep | ✅ |
-| `async_ro_lut.v` | 15× LUT1 inverter ring | ✅ |
-| `async_ro_loopback.v` | Pętla przez Pmod (zewn. zworka) | placeholder (F6) |
+| `sync_baseline.v` | Licznik WIDTH=4 @125MHz, referencja 7.8 MHz | ✅ na krzemie |
+| `async_ro_carry.v` | 64× CARRY4 ring + tap mux, dont_touch/keep | ✅ na krzemie |
+| `async_ro_lut.v` | 15× LUT1 inverter ring | ✅ na krzemie |
+| `async_ro_loopback.v` | Pętla przez Pmod (zewn. zworka JE1↔JE2) | ✅ na krzemie |
 | `freq_counter.v` | Okno 1ms + 2FF synchronizer + licznik zboczy | ✅ |
-| `async_prescaler.v` | Ripple /2^N taktowany ringiem (pokonuje Nyquista) | ✅ |
-| `freq_counter_axi.v` | AXI4-Lite slave, 4 rejestry, freq_counter w środku | ✅ |
-| `osc_axi_system.v` | PL top dla BD: warianty+mux+prescaler+AXI | ✅ |
-| `top_system.v` | Top standalone (bez PS) — ZedBoard | ✅ |
-| `top_system_zybo.v` | Wariant Zybo Z7-10 (w pogotowiu) | ✅ |
+| `async_prescaler.v` | Ripple /16 (DIV_BITS=4) taktowany ringiem | ✅ |
+| `top_system_zybo.v` | **TOP finalny** — warianty+mux+prescaler+counter+ILA hooks | ✅ |
+| `freq_counter_axi.v` | AXI4-Lite slave (do BD/F5) | ⚠️ zaprojektowany |
+| `osc_axi_system.v` | PL top dla BD (do BD/F5) | ⚠️ zaprojektowany |
+| `top_system.v` | Stary top standalone (ZedBoard) | 🕓 archiwum |
 
 ### Walka z Vivado (kluczowe do obrony)
-- `(* dont_touch="true", keep="true" *)` — na nodach loop closure, blokuje wycięcie pętli
-- Jawna instancjacja prymitywów `CARRY4` / `LUT1` (nie inferencja z RTL)
+- `(* dont_touch="true", keep="true" *)` — na nodach pętli, blokuje wycięcie
+- Jawna pętla (`assign feedback = enable & ~pmod_in`) — nie inferencja
 - `set_false_path` — wyłączenie analizy timing pętli kombinacyjnej
-- `ALLOW_COMBINATORIAL_LOOPS TRUE` — potwierdzenie zamierzonej pętli (inaczej DRC LUTLP-1 blokuje bitstream)
-- LOC: próbowane (SLICE_X8) — okazało się że Vivado sam organizuje CARRY4 cascade
+- `ALLOW_COMBINATORIAL_LOOPS TRUE` — inaczej DRC LUTLP-1 blokuje bitstream
+- `CLOCK_DEDICATED_ROUTE FALSE` — pin→BUFG dla loopback/prescalera
+- ILA dbg_hub: ścieżka temp <146 znaków → `subst X:` na repo
+- Storage qualification (`C_EN_STRG_QUAL`, `MU_CNT≥2`) — capture tylko `freq_valid==1`
+- Prescaler /256→/16 — finer rozdzielczość jitteru (8 poziomów zamiast 2)
 
 ---
 
-## 4. Mapa rejestrów AXI-Lite (baza 0x43C00000)
-
-| Offset | Rejestr | R/W | Opis |
-|---|---|---|---|
-| 0x00 | freq_count | RO | zbocza w oknie 1ms (po /256) |
-| 0x04 | control | RW | [1:0] osc_select, [2] enable |
-| 0x08 | status | RO | [0] valid (nowy pomiar) |
-| 0x0C | tap_select | RW | [5:0] długość pętli CARRY4 |
-
-`osc_select`: 0=sync, 1=carry, 2=loopback, 3=lut
-Realna f = `freq_count × 256 / 1ms` = `freq_count × 256 kHz`
-
----
-
-## 5. Tor pomiarowy — dlaczego tak (TDC)
+## 4. Tor pomiarowy — dlaczego tak (TDC)
 
 Sygnał async (setki MHz) nie da się odczytać bezpośrednio. Kwantyzujemy:
-1. **Prescaler /256** dzieli f w domenie async (ripple counter taktowany ringiem) → wolny sygnał. Bez tego licznik 100MHz mierzy max ~50MHz (Nyquist).
-2. **Okno 1ms** zegarem 100MHz, **2FF synchronizer** chroni przed metastabilnością.
+1. **Prescaler /16** dzieli f w domenie async (ripple taktowany ringiem) → wolny sygnał. Bez tego licznik 125 MHz mierzy max ~62 MHz (Nyquist).
+2. **Okno 1 ms** zegarem 125 MHz, **2FF synchronizer** chroni przed metastabilnością.
 3. Liczymy zbocza w oknie → liczba = częstotliwość. To **Time-to-Digital Conversion**.
+4. **ILA** czyta `freq_count` przez JTAG, 4096 okien (storage-qualified) = pełny rozkład → jitter.
 
 ---
 
-## 6. Flow budowania
+## 5. Pomiary i analiza
 
-### Symulacja (bez płytki)
-```tcl
-# Ring oscylacja (mock, bo SDF hanguje XSim na comb loop):
-set_property top tb_ring_mock [get_filesets sim_1]
-launch_simulation -mode behavioral
-# Pomiar freq:
-set_property top tb_freq_counter [get_filesets sim_1]
-launch_simulation -mode behavioral
-# Prescaler (pomiar >Nyquist):
-set_property top tb_prescaler_chain [get_filesets sim_1]
-launch_simulation -mode behavioral
-```
+**Dane:** `measurements/` (realne CSV z ILA). **Skrypty:** `analysis/`.
 
-### Bitstream + ARM (Block Design flow)
-```tcl
-source files/create_bd.tcl              # buduje BD Zynq+AXI
-# przelacz XDC na bd_pins.xdc, launch_runs impl_1 -to_step write_bitstream
-# File -> Export Hardware (include bitstream)
-# File -> Launch SDK -> New App -> wklej sw/main.c -> Build
-```
-
-### Analiza (Python)
 ```bash
 cd analysis
-python3 gen_sample_data.py    # dane syntetyczne (bez plytki)
-python3 plot_fN.py            # + plot_jitter/drift/fT, compare_sync_async
-# Z plytka: log_capture.py --port COMx --out X.csv, potem plot_X.py X.csv
+# krzywa f(N) + Excel PL (z surowych eksportów ILA):
+python3 ila_collect.py ../measurements/carry_16.csv ../measurements/carry_32.csv \
+                       ../measurements/carry_48.csv ../measurements/carry_64.csv
+python3 plot_fN.py real_fN.csv                      # wykres f(N) + t_d
+# histogram jitteru per wariant:
+python3 ila_jitter.py ../measurements/carry_16.csv carry_16
+python3 ila_jitter.py ../measurements/loop.csv loop
+# ... sync, lut, drift (measurements/drift/)
 ```
 
+Wykresy lądują w `analysis/figures/`. Szczegóły: `analysis/README.md`, plan: `docs/MEASUREMENT_PLAN.md`.
+
 ---
 
-## 7. Eksperymenty (deliverables)
+## 6. Eksperymenty (deliverables)
 
-| # | Eksperyment | Skrypt | Wymaga |
+| # | Eksperyment | Stan | Wynik |
 |---|---|---|---|
-| EXP_01 | f(N) krzywa strojenia | plot_fN.py | płytka/sym |
-| EXP_02 | histogram jitteru | plot_jitter.py | płytka |
-| EXP_03 | drift termiczny f(t) | plot_drift.py | płytka |
-| EXP_04 | korelacja f(T) | plot_fT.py | płytka + XADC |
-| EXP_05 | phase locking | — | płytka (opc.) |
-| EXP_06 | walidacja SDF vs HW | — | płytka |
-| EXP_07 | tabela sync vs async | compare_sync_async.py | płytka |
+| EXP_01 | f(N) krzywa strojenia | ✅ DONE | 134→67 MHz, t_d ≈ 82 ps/stopień |
+| EXP_02 | histogram jitteru | ✅ DONE | carry 129–148 ppm |
+| EXP_03 | drift termiczny | ⚠️ CZĘŚCIOWO | kierunek OK, efekt poniżej szumu (uczciwie) |
+| EXP_04 | f(T) z XADC | ❌ NIE | XADC=PS, Zybo standalone PL — brak |
+| EXP_05 | phase locking | ❌ NIE | nie robione |
+| EXP_06 | walidacja SDF vs HW | ❌ NIE | SDF wiesza XSim |
+| EXP_07 | sync vs async | ✅ DONE | tabela: f, σ, rozrzut LSB |
+| F6 | IO loopback | ✅ DONE | 32.1 MHz przez Pmod |
 
-Skrypty przetestowane na danych syntetycznych — gotowe na realne.
+Realne liczby: patrz `docs/RAPORT_STANU.md`.
 
 ---
 
-## 8. Errata / decyzje
+## 7. Errata / decyzje
 
-- **E1:** ZedBoard ma 8 DIP (nie więcej) → sw_mode[1:0] + sw_tap[5:0], piny M14/G15 usunięte
-- **E2:** SDF post-impl sim hanguje XSim (comb loop) → mock model behavioral
+- **E1:** Zybo Z7-10 ma 4 SW + 4 LED → SW1:0 = wariant, SW3:2 = tap; piny w `zybo_pins.xdc`
+- **E2:** SDF post-impl sim wiesza XSim (comb loop) → mock model behavioral (`tb_ring_mock`)
 - **E3:** XDC nie wspiera `for`/`foreach`/`if` → combined get_nets z `||`
 - **E4:** 2018.3 = SDK nie Vitis; Export = .hdf
-- **E5:** prescaler osc-jako-zegar → warningi gated-clock (benign, nie w pętli loopback przez pmod→BUFG)
+- **E5:** sync 921 ppm to artefakt kwantyzacji (niski freq_count → ±1 LSB), NIE realny jitter → raportujemy σ[kHz] + rozrzut LSB
+- **E6:** drift Δf≈30 kHz mieści się w jitterze (σ≈19 kHz) — chip słabo się grzeje przy lekkim obciążeniu
 
 ---
 
-## 9. Status: ~65%
-F1-F5 + F9-prep DONE (sym + bitstream + ARM C + analiza). Brakuje: fizyczne pomiary F6-F8 (płytka), raport końcowy.
+## 8. Status: ~95%
+
+F1–F4, F6, F7 DONE na krzemie. F5 zaprojektowany (BD, bitstream ZedBoard). EXP_01/02/07 zmierzone. Prezentacja końcowa: `prezka/prezentacja_wyniki.html` (32 slajdy). Brakuje: f(T)/phase locking (część niemożliwa na Zybo standalone), raport PDF (prezka zastępuje).

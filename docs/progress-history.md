@@ -4,6 +4,30 @@ Chronologiczna historia projektu. Dopisujemy na bieżąco po każdej sesji.
 
 ---
 
+## Sesja 6 — 2026-06-15 (prezentacja końcowa + porządki + audyt)
+
+**Cel:** domknąć prezentację końcową, posprzątać repo, uczciwy audyt stanu.
+
+### Zrobione
+- **Prezentacja końcowa** `prezka/prezentacja_wyniki.html` — 32 slajdy: teoria (paradygmat, 4 warianty, diagramy SVG) → pomiar (infra, BD/F5, walka z Vivado) → symulacje (7 waveformów, jeden na slajd) → wyniki realne. Screeny skalowane (`object-fit`, portretowe nie rozjeżdżają się).
+- **Block Design odzyskany** — otwarty z `system_bd.tcl` w osobnym projekcie xc7z020, screen do prezki (slajd F5). Pliki BD cały czas były na dysku (wypięte z .xpr w sesji 4), nic nie zginęło.
+- **Audyt + RAPORT_STANU.md** — zweryfikowane realne liczby ze skryptem (carry_16: 134.37 MHz/σ17.3/129ppm itd. — zgodne z prezką). Potwierdzono: zero mocków w danych, f(N) w prezce z realnego `real_fN.csv`.
+- **Wielkie porządki w repo:**
+  - `measurements/` — realne CSV z krzemu (było w `fpga_project/oscillator/`), drift do `measurements/drift/`, stare /256 do `measurements/past_versions/old_256/`
+  - `analysis/figures/` — realne histogramy + f(N); legacy (syntetyczne skrypty/CSV/figi, UART) → `analysis/past_versions/`
+  - `docs/past_versions/` — przestarzałe (HW_CHECKLIST ZedBoard, runbook 02.06, syntetyczne figi)
+  - outer `files/` (stare planowanie) → `repo/past_versions/planning_docs/`
+- **Aktualizacja docs** — `PROJECT_GUIDE.md`, `analysis/README.md`, `docs/README.md` przepisane na stan finalny (Zybo /16 ILA). Wcześniej opisywały stary ZedBoard /256 — sprzeczność z rzeczywistością naprawiona.
+
+### Uczciwie niezrobione (w RAPORT_STANU.md)
+- f(T) XADC (wymaga PS, Zybo standalone PL), phase locking, SDF-vs-HW (SDF wiesza XSim)
+- AXI/ARM nie odpalony na Zybo (tylko bitstream ZedBoard)
+- raport PDF (prezka zastępuje)
+
+### Stan: ~95%. Rdzeń na krzemie, pomiary realne, dokumentacja spójna.
+
+---
+
 ## Sesja 5 — 2026-06-10 (pomiary na krzemie + kampania)
 
 **Cel:** realne pomiary przez ILA, loopback, pełna kampania.

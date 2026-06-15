@@ -4,7 +4,7 @@
 **Realna f = freq_count × 16 kHz.**
 
 Każdy pomiar: ustaw switche → **Run Trigger** (▶) → poczekaj 4096 próbek →
-**Export ILA → Format CSV** → zapisz nazwą z tabeli (folder `fpga_project/oscillator/`).
+**Export ILA → Format CSV** → zapisz nazwą z tabeli (folder `measurements/`, drift do `measurements/drift/`).
 
 Zapis pozycji: **SW3 SW2 SW1 SW0** (SW1,SW0=wariant; SW3,SW2=tap).
 
@@ -50,8 +50,8 @@ Zapis pozycji: **SW3 SW2 SW1 SW0** (SW1,SW0=wariant; SW3,SW2=tap).
 5. (opcja) screenshot zoomu freq_count dla prezentacji
 
 ## Po zebraniu — analiza (ja robię)
-- `ila_collect.py carry_16.csv carry_32.csv carry_48.csv carry_64.csv` → krzywa f(N) + Excel PL
-- `ila_jitter.py <plik> <etykieta>` per wariant → histogramy jitteru
+- `ila_collect.py ../measurements/carry_16.csv ../measurements/carry_32.csv ../measurements/carry_48.csv ../measurements/carry_64.csv` → krzywa f(N) + Excel PL
+- `ila_jitter.py ../measurements/<plik>.csv <etykieta>` per wariant → histogramy jitteru (do `figures/`)
 - Tabela porównawcza sync/carry/lut/loop
 - Wszystko realne, zero mocków
 

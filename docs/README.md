@@ -15,7 +15,11 @@ Folder na bieżąco aktualizowany, commitowany z projektem.
 
 ```
 Async-RO-Delay-FPGA/          <- repo git
-  docs/                       <- ta dokumentacja
+  docs/                       <- ta dokumentacja + ZRODLO GitHub Pages
+    index.html                <- landing (redirect na prezentacje)
+    presentation/             <- PREZENTACJA koncowa (prezentacja_koncowa.html, 32 slajdy)
+      figures/                <- 14 uzywanych obrazow
+      past_versions/          <- stara koncepcja (zapowiedz)
     past_versions/            <- przestarzałe (ZedBoard plan, stary runbook, syntetyczne figi)
   analysis/                   <- skrypty ILA + realne wykresy
     figures/                  <- realne histogramy + f(N)
@@ -25,18 +29,19 @@ Async-RO-Delay-FPGA/          <- repo git
     past_versions/old_256/    <- stare pomiary /256
   fpga_project/oscillator/    <- projekt Vivado (RTL, XDC, bitstream)
 
-(poza repo git, w repo/):
-  prezka/                     <- prezentacja końcowa (prezentacja_wyniki.html, 32 slajdy)
+(poza repo git, w repo/ — historia, nie wersjonowane):
+  prezka/                     <- stara robocza kopia prezki (kanon jest w docs/presentation/)
   past_versions/planning_docs <- stare planowanie (PLAN, STATUS, FAZA_1, instrukcje...)
   _backup_zybo/               <- backup BD/topów sprzed pivotu
 ```
+
+## GitHub Pages
+Prezentacja hostowana: **https://mcvicz.github.io/Async-RO-Delay-FPGA/**
+(źródło: branch `mcvicz`, folder `/docs`, `.nojekyll`). Edycja → `docs/presentation/`.
 
 ## Zasada
 - Po każdej sesji: wpis do `progress-history.md`
 - Zmiany architektury/modułów: aktualizuj `PROJECT_GUIDE.md`
 - Realne dane → `measurements/`, wykresy → `analysis/figures/`
+- Prezentacja → `docs/presentation/` (NIE stara `repo/prezka/`)
 - Co stare/nieaktualne, a szkoda wyrzucić → `past_versions/` (nie kasujemy historii)
-
-## Uwaga: prezka poza gitem
-`prezka/` i outer foldery są POZA repo git (repo = `Async-RO-Delay-FPGA/`).
-Prezentacja jest na dysku, ale niewersjonowana w tym repo.

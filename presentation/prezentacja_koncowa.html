@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Asynchroniczny Ring Oscillator na FPGA — projekt końcowy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root{
+  --bg:#0a0e1a; --bg-card:#131826; --bg-card-2:#1a2030;
+  --accent:#4a9eff; --accent-warm:#ff8c42; --accent-good:#5dd39e; --accent-bad:#ff5e5e;
+  --text:#e8ecf4; --text-dim:#8b96aa; --text-mute:#5d6678; --border:#232a3d;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);
+  font-family:'Inter',-apple-system,Segoe UI,sans-serif;overflow:hidden;}
+.deck{position:relative;width:100vw;height:100vh;overflow:hidden;}
+.slide{position:absolute;inset:0;padding:4vh 5vw 6vh;display:none;flex-direction:column;
+  background:var(--bg);animation:fade .4s ease;}
+.slide.active{display:flex;}
+@keyframes fade{from{opacity:0;transform:translateX(15px)}to{opacity:1;transform:none}}
+.tag{position:absolute;top:3vh;left:5vw;font-family:'JetBrains Mono',monospace;font-size:.7rem;
+  text-transform:uppercase;letter-spacing:.2em;color:var(--accent);
+  padding:.35rem .7rem;border:1px solid var(--accent);border-radius:3px;}
+.num{position:absolute;bottom:2vh;right:3vw;font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--text-mute);}
+h1{font-size:clamp(2rem,4.5vw,3.8rem);font-weight:800;line-height:1.05;margin-bottom:1rem;
+  background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;
+  background-clip:text;-webkit-text-fill-color:transparent;}
+h2{font-size:clamp(1.4rem,2.8vw,2.4rem);font-weight:700;margin-bottom:1.2rem;}
+h3{font-size:clamp(1rem,1.7vw,1.35rem);color:var(--accent);margin-bottom:.7rem;}
+p,li{font-size:clamp(.85rem,1.2vw,1.05rem);line-height:1.5;color:var(--text-dim);}
+strong{color:var(--text);font-weight:600;}
+em{color:var(--text-dim);font-style:italic;}
+code{font-family:'JetBrains Mono',monospace;background:var(--bg-card-2);padding:.1em .4em;border-radius:3px;color:var(--accent-warm);font-size:.9em;}
+.content{flex:1;display:flex;flex-direction:column;justify-content:center;gap:1.3rem;margin-top:3vh;min-height:0;}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:center;min-height:0;}
+.two.top{align-items:start;}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.2rem;align-items:stretch;}
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:1.3rem;display:flex;flex-direction:column;gap:.6rem;}
+.card.accent{border-left:3px solid var(--accent);}
+.card.good{border-left:3px solid var(--accent-good);}
+.card.warm{border-left:3px solid var(--accent-warm);}
+.card.bad{border-left:3px solid var(--accent-bad);}
+.card-icon{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--accent);letter-spacing:.12em;}
+/* === SCREENSHOTS — skalowane, wycentrowane, nigdy nie rozjeżdżają === */
+.shot{display:block;margin:0 auto;max-width:100%;max-height:60vh;width:auto;height:auto;
+  border-radius:8px;border:1px solid var(--border);object-fit:contain;}
+.shot.dark{background:#000;} .shot.light{background:#fff;}
+.shot.tall{max-height:64vh;}
+.figcap{margin-top:.6rem;font-size:.82rem;line-height:1.45;color:var(--text-mute);text-align:center;max-width:90%;margin-left:auto;margin-right:auto;}
+.figbox{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:0;}
+table{width:100%;border-collapse:collapse;font-size:clamp(.78rem,1.05vw,1rem);}
+th{background:var(--bg-card-2);color:var(--accent);padding:.65rem .7rem;text-align:left;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;border-bottom:2px solid var(--accent);}
+td{padding:.55rem .7rem;border-bottom:1px solid var(--border);color:var(--text-dim);}
+td:first-child{color:var(--text);font-weight:500;}
+tr:hover td{background:var(--bg-card);}
+.big{font-size:clamp(1.5rem,3vw,2.3rem);font-weight:800;color:var(--accent-good);}
+ul.clean,ul.dash{list-style:none;}
+ul.clean li{padding:.35rem 0 .35rem 1.4rem;position:relative;}
+ul.clean li::before{content:"▸";position:absolute;left:0;color:var(--accent);}
+ul.dash li{padding:.3rem 0 .3rem 1.4rem;position:relative;}
+ul.dash li::before{content:"—";position:absolute;left:0;color:var(--text-mute);}
+.kicker{font-family:'JetBrains Mono',monospace;font-size:.85rem;text-transform:uppercase;letter-spacing:.25em;color:var(--accent);margin-bottom:1rem;}
+.subtitle{font-size:clamp(1rem,1.5vw,1.3rem);color:var(--text-dim);line-height:1.5;}
+.note{padding:.7rem 1.1rem;background:var(--bg-card);border-left:3px solid var(--accent-warm);
+  border-radius:4px;font-style:italic;font-size:.9rem;color:var(--text-dim);}
+.note strong{font-style:normal;}
+/* section divider */
+.section-slide{justify-content:center;align-items:flex-start;padding-left:8vw;
+  background:radial-gradient(circle at 20% 50%,rgba(74,158,255,.08) 0%,transparent 50%),var(--bg);}
+.section-num{font-family:'JetBrains Mono',monospace;font-size:1.3rem;color:var(--accent);margin-bottom:1rem;}
+.section-slide h1{font-size:clamp(2.6rem,6vw,5rem);max-width:90%;}
+.title-meta{margin-top:2.5rem;display:flex;gap:3.5rem;font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--text-mute);}
+.title-meta div span{display:block;font-size:.7rem;text-transform:uppercase;letter-spacing:.2em;color:var(--accent);margin-bottom:.3rem;}
+.diagram{display:flex;align-items:center;justify-content:center;min-height:0;}
+.diagram svg{max-width:100%;max-height:48vh;}
+.code-block{background:var(--bg-card-2);border:1px solid var(--border);border-left:3px solid var(--accent);
+  border-radius:6px;padding:1.2rem;font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:1.65;color:var(--text);overflow:auto;}
+.code-block .comment{color:var(--text-mute);} .code-block .keyword{color:var(--accent);}
+.code-block .string{color:var(--accent-good);} .code-block .attr{color:var(--accent-warm);}
+.nav{position:fixed;bottom:1.5vh;left:50%;transform:translateX(-50%);display:flex;gap:.4rem;align-items:center;
+  background:var(--bg-card);border:1px solid var(--border);border-radius:100px;padding:.35rem .7rem;z-index:100;
+  font-family:'JetBrains Mono',monospace;font-size:.8rem;}
+.nav button{background:none;border:none;color:var(--text-dim);font-size:1rem;cursor:pointer;padding:.3rem .6rem;border-radius:4px;}
+.nav button:hover{background:var(--bg-card-2);color:var(--text);}
+.nav .counter{color:var(--text-mute);padding:0 .5rem;}
+.kb-hint{position:fixed;bottom:2vh;left:2vw;font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--text-mute);letter-spacing:.1em;}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<!-- 1 TITLE -->
+<section class="slide section-slide active">
+  <div class="kicker">Projekt FPGA · Zybo Z7-10 · Vivado 2018.3 · pomiary na krzemie</div>
+  <h1>Asynchroniczny<br>Ring Oscillator na FPGA</h1>
+  <p class="subtitle" style="max-width:65%;">
+    Projekt, implementacja i charakterystyka generatorów częstotliwości zbudowanych
+    z elementów <strong>innych niż LUT</strong> — porównanie z synchronicznym licznikiem referencyjnym.
+  </p>
+  <div class="title-meta">
+    <div><span>Autorzy</span>Paweł Michalcewicz<br>Krzysztof Podoba</div>
+    <div><span>Prowadzący</span>dr inż. Jamro</div>
+    <div><span>Platforma</span>Xilinx Zynq-7010<br>Digilent Zybo Z7-10</div>
+  </div>
+  <div class="num">01</div>
+</section>
+
+<!-- 2 WPROWADZENIE -->
+<section class="slide">
+  <div class="tag">01 · Wprowadzenie</div>
+  <h2>Po co budować coś, czego FPGA „nie powinno" robić?</h2>
+  <div class="content"><div class="two top">
+    <div>
+      <h3>Standardowo</h3>
+      <ul class="clean">
+        <li>Wszystko w rytm zegara systemowego</li>
+        <li>Deterministyczne, przewidywalne, bezpieczne</li>
+        <li>Vivado optymalizuje i chroni przed pętlami kombinacyjnymi</li>
+        <li>FPGA = abstrakcyjna maszyna logiczna</li>
+      </ul>
+    </div>
+    <div>
+      <h3>W tym projekcie</h3>
+      <ul class="clean">
+        <li>Pętla bez zegara — sama z siebie oscyluje</li>
+        <li>Częstotliwość zależy od fizyki: temperatury, napięcia, krzemu</li>
+        <li>Walczymy z toolchainem, żeby nie wyciął naszego „błędu"</li>
+        <li>FPGA = <strong>precyzyjne narzędzie pomiarowe samego krzemu</strong></li>
+      </ul>
+    </div>
+  </div></div>
+  <div class="num">02</div>
+</section>
+
+<!-- 3 CEL -->
+<section class="slide">
+  <div class="tag">02 · Cel</div>
+  <h2>Cel projektu</h2>
+  <div class="content">
+    <p style="font-size:1.2rem;max-width:85%;">
+      Zaprojektować i scharakteryzować asynchroniczny generator częstotliwości (ring oscillator)
+      na FPGA, zbudowany z <strong>elementów innych niż LUT</strong>, i porównać go
+      z synchronicznym licznikiem referencyjnym — <strong>na realnym krzemie</strong>.
+    </p>
+    <div class="three" style="margin-top:1rem;">
+      <div class="card accent"><div class="card-icon">01 · IMPLEMENTACJA</div><p>Ring na łańcuchu CARRY4, wariant LUT1 oraz IO-loopback przez Pmod</p></div>
+      <div class="card accent"><div class="card-icon">02 · STEROWANIE</div><p>Tap selector — strojenie f w runtime przez zmianę długości pętli (przełączniki)</p></div>
+      <div class="card accent"><div class="card-icon">03 · POMIARY</div><p>Częstotliwość f(N), jitter, drift termiczny, porównanie sync vs async</p></div>
+      <div class="card accent"><div class="card-icon">04 · ANALIZA</div><p>4096 okien przez ILA, statystyka w Pythonie, krzywe i histogramy</p></div>
+    </div>
+  </div>
+  <div class="num">03</div>
+</section>
+
+<!-- 4 DLACZEGO ASYNC -->
+<section class="slide">
+  <div class="tag">03 · Paradygmat</div>
+  <h2>Dlaczego asynchroniczny?</h2>
+  <div class="content"><div class="two top">
+    <div>
+      <h3>Fizyka zamiast abstrakcji</h3>
+      <p style="margin-bottom:.8rem;">Układ synchroniczny „czeka na tyknięcie zegara" — ukrywa rzeczywistą prędkość sygnału. Zegar to <strong>kaganiec</strong> nałożony na fizykę krzemu.</p>
+      <p>Ring oscillator zdejmuje ten kaganiec. Sygnał biega w pętli tak szybko, jak pozwalają fizyczne opóźnienia tranzystorów i drutów — <strong>w pikosekundach</strong>.</p>
+    </div>
+    <div>
+      <h3>Z niedoskonałości robimy atut</h3>
+      <p style="margin-bottom:.8rem;">Szum termiczny, wariacje produkcyjne, drift napięcia — to, co inżynierowie zwykle <em>eliminują</em>, my <strong>wykorzystujemy</strong>.</p>
+      <ul class="dash">
+        <li><strong>TRNG</strong> — sprzętowy generator liczb losowych</li>
+        <li><strong>PUF</strong> — fingerprint krzemu, anti-counterfeiting</li>
+        <li><strong>Krzemowy termometr</strong> — f(T) jako pomiar temperatury</li>
+      </ul>
+    </div>
+  </div></div>
+  <div class="num">04</div>
+</section>
+
+<!-- 5 SECTION: ARCHITEKTURA -->
+<section class="slide section-slide">
+  <div class="section-num">// 02</div>
+  <h1>Architektura<br>bez LUT</h1>
+  <p class="subtitle" style="margin-top:1.5rem;max-width:62%;">Trzy warianty ring oscillatora — od pikosekund w krzemie po nanosekundy w miedzi — plus synchroniczna referencja.</p>
+  <div class="num">05</div>
+</section>
+
+<!-- 6 BASELINE SYNC -->
+<section class="slide">
+  <div class="tag">04 · Baseline</div>
+  <h2>Wariant 0 — synchroniczny licznik (referencja)</h2>
+  <div class="content"><div class="two">
+    <div>
+      <p style="margin-bottom:1rem;">N-bitowy licznik taktowany zegarem 125 MHz. <strong>Tak się to robi prawidłowo</strong> — i tak robi każdy inżynier.</p>
+      <ul class="clean">
+        <li><strong>Stabilność:</strong> deterministyczna, zegar krystaliczny</li>
+        <li><strong>Rozdzielczość:</strong> 8 ns (jeden takt 125 MHz)</li>
+        <li><strong>Jitter:</strong> pomijalny</li>
+        <li><strong>Wrażliwość termiczna:</strong> zerowa</li>
+      </ul>
+      <p style="margin-top:1rem;color:var(--accent-warm);"><strong>Problem:</strong> 8 ns to za grubo, by zmierzyć szum termiczny czy fluktuacje opóźnień bramek. Potrzeba rozdzielczości pikosekundowej — stąd ring oscillator.</p>
+    </div>
+    <div class="diagram">
+      <svg viewBox="0 0 400 240" width="100%">
+        <rect x="20" y="100" width="90" height="40" rx="4" fill="#1a2030" stroke="#4a9eff" stroke-width="2"/>
+        <text x="65" y="125" fill="#e8ecf4" font-family="JetBrains Mono" font-size="12" text-anchor="middle">CLK 125MHz</text>
+        <line x1="110" y1="120" x2="150" y2="120" stroke="#4a9eff" stroke-width="2"/><polygon points="150,120 142,116 142,124" fill="#4a9eff"/>
+        <rect x="150" y="85" width="140" height="70" rx="4" fill="#131826" stroke="#4a9eff" stroke-width="2"/>
+        <text x="220" y="112" fill="#e8ecf4" font-family="Inter" font-size="14" font-weight="600" text-anchor="middle">Licznik N-bit</text>
+        <text x="220" y="135" fill="#8b96aa" font-family="JetBrains Mono" font-size="11" text-anchor="middle">count &lt;= count+1</text>
+        <line x1="290" y1="120" x2="330" y2="120" stroke="#4a9eff" stroke-width="2"/><polygon points="330,120 322,116 322,124" fill="#4a9eff"/>
+        <rect x="330" y="100" width="55" height="40" rx="4" fill="#1a2030" stroke="#5dd39e" stroke-width="2"/>
+        <text x="357" y="125" fill="#5dd39e" font-family="JetBrains Mono" font-size="12" text-anchor="middle">f_out</text>
+        <g transform="translate(70,185)">
+          <path d="M0,20 L20,20 L20,0 L50,0 L50,20 L80,20 L80,0 L110,0 L110,20 L140,20 L140,0 L170,0 L170,20 L200,20 L200,0 L230,0 L230,20 L255,20" fill="none" stroke="#5dd39e" stroke-width="2"/>
+          <text x="125" y="45" fill="#8b96aa" font-family="JetBrains Mono" font-size="10" text-anchor="middle">deterministyczne, stałe T</text>
+        </g>
+      </svg>
+    </div>
+  </div></div>
+  <div class="num">06</div>
+</section>
+
+<!-- 7 CARRY4 RING (RDZEN) -->
+<section class="slide">
+  <div class="tag">05 · Wariant 1 · Główny</div>
+  <h2>Ring oscillator na łańcuchu CARRY4</h2>
+  <div class="content"><div class="two">
+    <div>
+      <h3>Dlaczego nie LUT-y?</h3>
+      <p style="margin-bottom:.8rem;">Łańcuch LUT-ów to <strong>luźny routing</strong> — Vivado raz połączy je obok siebie, raz przez pół chipa. Opóźnienia nieprzewidywalne.</p>
+      <h3>Dlaczego CARRY4?</h3>
+      <p style="margin-bottom:.8rem;">„Twarde makra" do szybkich sumatorów. Ułożone <strong>fizycznie pionowo</strong> w strukturze chipa, łączone dedykowanymi szybkimi ścieżkami (fast carry).</p>
+      <ul class="dash">
+        <li>Opóźnienie na 1 stopień: <strong>~82 ps</strong> (zmierzone)</li>
+        <li>Łańcuch deterministyczny, trudny do zoptymalizowania</li>
+        <li>Wymaga dyrektyw <code>dont_touch</code>/<code>keep</code></li>
+      </ul>
+    </div>
+    <div class="diagram">
+      <svg viewBox="0 0 320 320" width="100%">
+        <g font-family="JetBrains Mono" font-size="11">
+          <rect x="100" y="20" width="120" height="46" rx="4" fill="#131826" stroke="#ff8c42" stroke-width="2"/><text x="160" y="40" fill="#ff8c42" text-anchor="middle" font-weight="700">CARRY4</text><text x="160" y="56" fill="#8b96aa" text-anchor="middle" font-size="9">SLICE_X10Y23</text>
+          <rect x="100" y="76" width="120" height="46" rx="4" fill="#131826" stroke="#ff8c42" stroke-width="2"/><text x="160" y="96" fill="#ff8c42" text-anchor="middle" font-weight="700">CARRY4</text><text x="160" y="112" fill="#8b96aa" text-anchor="middle" font-size="9">SLICE_X10Y22</text>
+          <rect x="100" y="132" width="120" height="46" rx="4" fill="#131826" stroke="#ff8c42" stroke-width="2"/><text x="160" y="152" fill="#ff8c42" text-anchor="middle" font-weight="700">CARRY4</text><text x="160" y="168" fill="#8b96aa" text-anchor="middle" font-size="9">SLICE_X10Y21</text>
+          <rect x="100" y="188" width="120" height="46" rx="4" fill="#131826" stroke="#ff8c42" stroke-width="2"/><text x="160" y="208" fill="#ff8c42" text-anchor="middle" font-weight="700">CARRY4</text><text x="160" y="224" fill="#8b96aa" text-anchor="middle" font-size="9">SLICE_X10Y20</text>
+          <line x1="160" y1="66" x2="160" y2="76" stroke="#5dd39e" stroke-width="3"/><line x1="160" y1="122" x2="160" y2="132" stroke="#5dd39e" stroke-width="3"/><line x1="160" y1="178" x2="160" y2="188" stroke="#5dd39e" stroke-width="3"/>
+          <path d="M100,211 Q40,211 40,127 Q40,43 100,43" fill="none" stroke="#4a9eff" stroke-width="2" stroke-dasharray="4,3"/><polygon points="100,43 92,39 92,47" fill="#4a9eff"/>
+          <line x1="220" y1="211" x2="270" y2="211" stroke="#ff8c42" stroke-width="2"/><polygon points="270,211 262,207 262,215" fill="#ff8c42"/><text x="275" y="206" fill="#ff8c42" font-size="10">→ f_osc</text>
+          <text x="20" y="270" fill="#4a9eff" font-size="10">sprzężenie zwrotne + LUT1 inwerter</text>
+          <text x="20" y="285" fill="#5dd39e" font-size="10">fast carry route (dedykowany)</text>
+          <text x="20" y="300" fill="#8b96aa" font-size="9">~82 ps na stopień</text>
+        </g>
+      </svg>
+    </div>
+  </div></div>
+  <div class="num">07</div>
+</section>
+
+<!-- 8 WARIANT LUT + LOOPBACK -->
+<section class="slide">
+  <div class="tag">06 · Warianty 2 i 3</div>
+  <h2>Ring LUT1 oraz IO-loopback poza krzemem</h2>
+  <div class="content"><div class="two top">
+    <div>
+      <h3>Wariant 2 — ring LUT1</h3>
+      <p style="margin-bottom:.8rem;">15 inwerterów LUT1 w pętli (sugestia prowadzącego). Klasyczny ring — punkt odniesienia dla CARRY4. Routing mniej przewidywalny, ale oscyluje (zmierzone ~113 MHz).</p>
+      <h3 style="margin-top:1rem;">Wariant 3 — IO-loopback</h3>
+      <p>Pętla zamknięta <strong>fizycznie poza FPGA</strong>: inwerter → <code>OBUF</code> → pin Pmod JE1 → zworka (kabelek) → pin JE2 → <code>IBUF</code> → pętla. Opóźnienie IO+PCB+kabel dominuje → f spada do ~32 MHz.</p>
+      <div class="note" style="margin-top:.9rem;">Najczystsza forma asynchroniczności: sygnał <strong>opuszcza krzem</strong> i wraca. Pokazuje, że oscylator mierzy realny świat fizyczny, nie tylko logikę cyfrową.</div>
+    </div>
+    <div class="diagram">
+      <svg viewBox="0 0 400 300" width="100%">
+        <rect x="20" y="40" width="240" height="230" rx="8" fill="none" stroke="#4a9eff" stroke-width="2" stroke-dasharray="6,4"/>
+        <text x="30" y="60" fill="#4a9eff" font-family="JetBrains Mono" font-size="10">FPGA (Zynq-7010)</text>
+        <rect x="55" y="130" width="105" height="55" rx="4" fill="#131826" stroke="#e8ecf4" stroke-width="1.5"/>
+        <text x="107" y="153" fill="#e8ecf4" font-family="JetBrains Mono" font-size="10" text-anchor="middle">inwerter</text>
+        <text x="107" y="170" fill="#8b96aa" font-family="JetBrains Mono" font-size="9" text-anchor="middle">~pmod_in</text>
+        <polygon points="180,138 200,148 200,168 180,178" fill="#131826" stroke="#ff8c42" stroke-width="2"/><text x="190" y="198" fill="#ff8c42" font-family="JetBrains Mono" font-size="9" text-anchor="middle">OBUF</text>
+        <polygon points="180,215 200,215 200,255 180,255" fill="#131826" stroke="#ff8c42" stroke-width="2"/><polygon points="180,215 200,235 180,255" fill="#131826" stroke="#ff8c42" stroke-width="2"/><text x="190" y="272" fill="#ff8c42" font-family="JetBrains Mono" font-size="9" text-anchor="middle">IBUF</text>
+        <line x1="160" y1="155" x2="180" y2="155" stroke="#5dd39e" stroke-width="2"/>
+        <line x1="160" y1="235" x2="180" y2="235" stroke="#5dd39e" stroke-width="2"/><polygon points="160,235 168,231 168,239" fill="#5dd39e"/>
+        <circle cx="260" cy="155" r="6" fill="#ff8c42"/><circle cx="260" cy="235" r="6" fill="#ff8c42"/>
+        <text x="280" y="140" fill="#ff8c42" font-family="JetBrains Mono" font-size="10">Pmod JE1</text><text x="280" y="258" fill="#ff8c42" font-family="JetBrains Mono" font-size="10">Pmod JE2</text>
+        <line x1="200" y1="155" x2="260" y2="155" stroke="#5dd39e" stroke-width="2"/><line x1="260" y1="235" x2="200" y2="235" stroke="#5dd39e" stroke-width="2"/>
+        <path d="M260,155 Q360,155 360,195 Q360,235 260,235" fill="none" stroke="#5dd39e" stroke-width="3"/>
+        <text x="340" y="200" fill="#5dd39e" font-family="JetBrains Mono" font-size="10">zworka</text>
+        <text x="110" y="295" fill="#8b96aa" font-family="JetBrains Mono" font-size="10" text-anchor="middle">opóźnienie fizycznego drutu → ~32 MHz</text>
+      </svg>
+    </div>
+  </div></div>
+  <div class="num">08</div>
+</section>
+
+<!-- 9 STROJENIE + DEVICE VIEW -->
+<section class="slide">
+  <div class="tag">07 · Sterowanie + krzem</div>
+  <h2>Strojenie f i rozmieszczenie na krzemie</h2>
+  <div class="content"><div class="two">
+    <div>
+      <h3>Tap selector</h3>
+      <p style="margin-bottom:.8rem;">Multiplekser wybiera, ile stopni CARRY4 jest w pętli — strojenie częstotliwości <strong>bez reprogramowania</strong>, przełącznikami SW2/SW3.</p>
+      <ul class="dash">
+        <li>4 punkty: 16 / 32 / 48 / 64 stopnie</li>
+        <li>f ~ 1/N — krótsza pętla = wyższa f</li>
+        <li>Krzywa f(N) = charakterystyka kalibracyjna (slajd 15)</li>
+      </ul>
+      <div class="note" style="margin-top:.9rem;">Device View potwierdza: komórki ringu fizycznie <strong>leżą w krzemie</strong> (SLICE/CLB), nie są abstrakcją. Logika pomiarowa (freq_counter + ILA) zajmuje osobne zasoby.</div>
+    </div>
+    <div class="figbox">
+      <img src="figures/device_view.png" class="shot dark tall" alt="Device View">
+      <div class="figcap">Vivado Device View (xc7z010): turkusowe komórki = zajęte SLICE (ring + freq_counter + rdzeń ILA), różowy blok = wymuszony LOC. Pętla async leży na fizycznym krzemie.</div>
+    </div>
+  </div></div>
+  <div class="num">09</div>
+</section>
+
+<!-- 10 SECTION: POMIAR -->
+<section class="slide section-slide">
+  <div class="section-num">// 03</div>
+  <h1>Infrastruktura<br>pomiarowa</h1>
+  <p class="subtitle" style="margin-top:1.5rem;max-width:62%;">Jak zmierzyć coś, co kręci się setki milionów razy na sekundę i nie ma zegara?</p>
+  <div class="num">10</div>
+</section>
+
+<!-- 11 INFRA -->
+<section class="slide">
+  <div class="tag">08 · Pomiar</div>
+  <h2>Tor pomiarowy — TDC + prescaler + ILA</h2>
+  <div class="content">
+    <div class="diagram" style="margin-bottom:.5rem;">
+      <svg viewBox="0 0 820 230" style="width:88%;max-height:30vh;">
+        <g font-family="JetBrains Mono" font-size="11">
+          <rect x="10" y="85" width="120" height="62" rx="4" fill="#131826" stroke="#ff8c42" stroke-width="2"/>
+          <text x="70" y="108" fill="#ff8c42" text-anchor="middle" font-weight="700">Ring Osc</text><text x="70" y="125" fill="#8b96aa" text-anchor="middle" font-size="9">CARRY4/LUT/loop</text><text x="70" y="139" fill="#5dd39e" text-anchor="middle" font-size="9">async, ~130 MHz</text>
+          <line x1="130" y1="116" x2="165" y2="116" stroke="#ff8c42" stroke-width="2" stroke-dasharray="4,2"/>
+          <rect x="165" y="85" width="120" height="62" rx="4" fill="#131826" stroke="#ff8c42" stroke-width="2"/>
+          <text x="225" y="105" fill="#ff8c42" text-anchor="middle" font-weight="700">Prescaler /16</text><text x="225" y="122" fill="#8b96aa" text-anchor="middle" font-size="9">ripple, domena async</text><text x="225" y="136" fill="#8b96aa" text-anchor="middle" font-size="9">omija Nyquista</text>
+          <line x1="285" y1="116" x2="320" y2="116" stroke="#4a9eff" stroke-width="2"/><polygon points="320,116 312,112 312,120" fill="#4a9eff"/>
+          <rect x="320" y="75" width="150" height="82" rx="4" fill="#131826" stroke="#4a9eff" stroke-width="2"/>
+          <text x="395" y="98" fill="#4a9eff" text-anchor="middle" font-weight="700">freq_counter</text><text x="395" y="116" fill="#e8ecf4" text-anchor="middle" font-size="10">okno 1 ms</text><text x="395" y="132" fill="#8b96aa" text-anchor="middle" font-size="9">domena 125 MHz</text><text x="395" y="146" fill="#8b96aa" text-anchor="middle" font-size="9">synchronizer 2FF</text>
+          <line x1="395" y1="45" x2="395" y2="75" stroke="#4a9eff" stroke-width="2"/><polygon points="395,75 391,67 399,67" fill="#4a9eff"/><text x="395" y="40" fill="#4a9eff" text-anchor="middle" font-size="9">CLK 125 MHz</text>
+          <line x1="470" y1="116" x2="505" y2="116" stroke="#4a9eff" stroke-width="2"/><polygon points="505,116 497,112 497,120" fill="#4a9eff"/><text x="487" y="108" fill="#4a9eff" text-anchor="middle" font-size="9">freq_count</text>
+          <rect x="505" y="75" width="140" height="82" rx="4" fill="#131826" stroke="#5dd39e" stroke-width="2"/>
+          <text x="575" y="98" fill="#5dd39e" text-anchor="middle" font-weight="700">ILA</text><text x="575" y="116" fill="#e8ecf4" text-anchor="middle" font-size="10">bufor 4096 okien</text><text x="575" y="132" fill="#8b96aa" text-anchor="middle" font-size="9">storage qualified</text><text x="575" y="146" fill="#8b96aa" text-anchor="middle" font-size="9">freq_valid==1</text>
+          <line x1="645" y1="116" x2="680" y2="116" stroke="#5dd39e" stroke-width="2"/><polygon points="680,116 672,112 672,120" fill="#5dd39e"/><text x="662" y="108" fill="#5dd39e" text-anchor="middle" font-size="9">JTAG</text>
+          <rect x="680" y="85" width="130" height="62" rx="4" fill="#131826" stroke="#e8ecf4" stroke-width="2"/>
+          <text x="745" y="108" fill="#e8ecf4" text-anchor="middle" font-weight="700">PC / Python</text><text x="745" y="125" fill="#8b96aa" text-anchor="middle" font-size="9">CSV → pandas</text><text x="745" y="139" fill="#8b96aa" text-anchor="middle" font-size="9">numpy + matplotlib</text>
+        </g>
+      </svg>
+    </div>
+    <div class="two">
+      <div class="card warm"><h3 style="color:var(--accent-warm)">Prescaler /16 — pokonanie Nyquista</h3><p>Ring ~130 MHz, a licznik w domenie 125 MHz nie zmierzy go wprost. Ripple-dzielnik /16 w domenie async obniża f przed licznikiem. <strong>f = freq_count × 16 kHz.</strong></p></div>
+      <div class="card good"><h3>ILA + storage qualification</h3><p>Każda próbka = osobne okno 1 ms (capture tylko gdy <code>freq_valid==1</code>). 4096 okien = pełny rozkład → jitter. Odczyt przez JTAG, bez UART/PS.</p></div>
+    </div>
+    <div class="note">Zaprojektowano też ścieżkę AXI4-Lite + ARM Cortex-A9 (Block Design, faza F5) do odczytu freq przez UART — w pomiarach finalnych użyto ILA-over-JTAG (prościej, bez PS).</div>
+  </div>
+  <div class="num">11</div>
+</section>
+
+<!-- BLOCK DESIGN (F5) -->
+<section class="slide">
+  <div class="tag">F5 · Block Design</div>
+  <h2>Ścieżka AXI4-Lite + ARM — zaprojektowana</h2>
+  <div class="content figbox">
+    <img src="figures/block_design.png" class="shot" style="max-height:52vh;background:#fff;" alt="Block Design AXI">
+    <div class="figcap"><strong style="color:var(--accent)">ZYNQ7 PS + AXI Interconnect + osc_axi_system</strong> — alternatywny tor odczytu: ring i licznik (custom IP <code>osc_axi_system</code>, slave AXI4-Lite, adres 0x43C00000) → AXI → ARM Cortex-A9 → UART → PC; bare-metal C czyta freq. <code>pmod_in/out</code> wyprowadzone na piny (loopback), DDR/FIXED_IO do PS. Bitstream wygenerowany (ZedBoard, 0 errors). W finale użyliśmy ILA — prościej i bez PS.</div>
+  </div>
+  <div class="num">12</div>
+</section>
+
+<!-- 12 WALKA Z VIVADO -->
+<section class="slide">
+  <div class="tag">09 · Toolchain</div>
+  <h2>Walka z Vivado — co było trudne</h2>
+  <div class="content"><div class="two top">
+    <div>
+      <h3>RTL — dyrektywy syntezy</h3>
+      <div class="code-block">
+<span class="comment">// Każdy element pętli MUSI mieć:</span>
+(* <span class="attr">dont_touch</span>=<span class="string">"true"</span>, <span class="attr">keep</span>=<span class="string">"true"</span> *)
+<span class="keyword">wire</span> feedback;
+<span class="comment">// inwerter zamykający pętlę</span>
+<span class="keyword">assign</span> feedback = enable &amp; ~pmod_in;
+      </div>
+      <ul class="clean" style="margin-top:.8rem;">
+        <li><code>dont_touch</code>+<code>keep</code> — pętla nie wycięta</li>
+        <li><code>ALLOW_COMBINATORIAL_LOOPS</code> — DRC zezwala na ring</li>
+        <li><code>set_false_path</code> — brak analizy timingu pętli</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Pomiar / ILA</h3>
+      <ul class="clean">
+        <li>Prescaler pin→BUFG: <code>CLOCK_DEDICATED_ROUTE FALSE</code></li>
+        <li>ILA dbg_hub — ścieżka temp &lt;146 znaków (<code>subst X:</code>)</li>
+        <li>Storage qualification — jitter z 4096 okien (capture, nie trigger)</li>
+        <li>Prescaler /16 zamiast /256 — realna rozdzielczość jitteru (8 poziomów zamiast 2)</li>
+      </ul>
+      <div class="note" style="margin-top:1rem;"><strong>Wniosek:</strong> Vivado domyślnie <em>nienawidzi</em> pętli kombinacyjnych — próbuje je usunąć lub zredukować do jednego drutu. Trzeba to wymusić jawnie na każdym poziomie: RTL, XDC, DRC.</div>
+    </div>
+  </div></div>
+  <div class="num">13</div>
+</section>
+
+<!-- SECTION: SYMULACJE -->
+<section class="slide section-slide">
+  <div class="section-num">// 03b</div>
+  <h1>Symulacje<br>behawioralne</h1>
+  <p class="subtitle" style="margin-top:1.5rem;max-width:64%;">Weryfikacja RTL przed krzemem. Model mock z jawnym <code>#delay</code> — klasyczny RTL pętli kombinacyjnej wiesza XSim (zerowe opóźnienie → oscylacja w delcie czasu).</p>
+  <div class="num">14</div>
+</section>
+
+<!-- SIM 1 -->
+<section class="slide">
+  <div class="tag">Sym · tb_ring_mock</div>
+  <h2>Ring oscyluje + strojenie tap</h2>
+  <div class="content figbox">
+    <img src="figures/sim_ring_mock.png" class="shot dark" style="max-height:58vh;" alt="tb_ring_mock">
+    <div class="figcap"><strong style="color:var(--accent)">tb_ring_mock</strong> — <strong>osc_carry</strong> i <strong>osc_lut oscylują</strong>. Zmiana <code>tap_select</code> (3f → 0f → 03 → 1f) zmienia częstotliwość: krótsza pętla = gęstsze zbocza. Dowód działania ringu i strojenia.</div>
+  </div>
+  <div class="num">15</div>
+</section>
+
+<!-- SIM 2 -->
+<section class="slide">
+  <div class="tag">Sym · tb_freq_counter</div>
+  <h2>Licznik mierzy częstotliwość (waveform)</h2>
+  <div class="content figbox">
+    <img src="figures/sim_freq_wave.png" class="shot dark" style="max-height:58vh;" alt="tb_freq_counter waveform">
+    <div class="figcap"><strong style="color:var(--accent)">tb_freq_counter</strong> — <code>freq_count[31:0]</code> aktualizuje się po każdym oknie: 0x0f9 → 0x1c1 → 0x0ca przy zmianie <code>tap_select</code> (3f → 1f → 0f). Wyższa f → wyższy zliczony count. <code>valid</code> stempluje koniec okna.</div>
+  </div>
+  <div class="num">16</div>
+</section>
+
+<!-- SIM 3 -->
+<section class="slide">
+  <div class="tag">Sym · tb_freq_counter</div>
+  <h2>Licznik mierzy częstotliwość (konsola)</h2>
+  <div class="content figbox">
+    <img src="figures/sim_freq_console.png" class="shot light" style="max-height:42vh;" alt="tb_freq_counter console">
+    <div class="figcap"><strong style="color:var(--accent)">tb_freq_counter</strong> — wydruk z konsoli XSim: 25 MHz → <strong>249 zbocz/okno</strong> (oczekiwane 250). Zmiana tap → 249 / 449 / 202. Pokazany też limit Nyquista (tap=15 → aliasing). Licznik działa poprawnie.</div>
+  </div>
+  <div class="num">17</div>
+</section>
+
+<!-- SIM 4 -->
+<section class="slide">
+  <div class="tag">Sym · tb_prescaler_chain</div>
+  <h2>Prescaler /16 — pełny przebieg</h2>
+  <div class="content figbox">
+    <img src="figures/sim_presc_wave.png" class="shot dark" style="max-height:58vh;" alt="tb_prescaler full">
+    <div class="figcap"><strong style="color:var(--accent)">tb_prescaler_chain</strong> — <code>osc_fast</code> (szybki ring) dzielony /16 (<code>DIV=0x10</code>) na <code>osc_div</code>, dopiero potem licznik. <code>freq_count</code> 0x18f / 0x190 stabilne → odzysk realnej f. Tak omijamy Nyquista.</div>
+  </div>
+  <div class="num">18</div>
+</section>
+
+<!-- SIM 5 -->
+<section class="slide">
+  <div class="tag">Sym · tb_prescaler_chain</div>
+  <h2>Prescaler /16 — zoom na dzielenie</h2>
+  <div class="content figbox">
+    <img src="figures/sim_presc_zoom.png" class="shot dark" style="max-height:58vh;" alt="tb_prescaler zoom">
+    <div class="figcap"><strong style="color:var(--accent)">tb_prescaler_chain (zoom)</strong> — gęsty <code>osc_fast</code> (~320 MHz) kontra wolniejszy <code>osc_div</code> po podziale /16. Widać 16 zboczy ringu na 1 zbocze dzielnika — ripple-dzielnik w domenie async.</div>
+  </div>
+  <div class="num">19</div>
+</section>
+
+<!-- SIM 6 -->
+<section class="slide">
+  <div class="tag">Sym · tb_prescaler_chain</div>
+  <h2>Prescaler /16 — pokonany Nyquist (konsola)</h2>
+  <div class="content figbox">
+    <img src="figures/sim_presc_console.png" class="shot light" style="max-height:52vh;" alt="tb_prescaler console">
+    <div class="figcap"><strong style="color:var(--accent)">tb_prescaler_chain</strong> — konsola: freq_count=199 → <strong>REALNA f = 318 MHz</strong> (tap63), 360 → 576 MHz, 400 → <strong>640 MHz</strong> (tap31). Licznik w domenie 100 MHz mierzy ring 640 MHz dzięki /16. <strong>Nyquist pokonany.</strong></div>
+  </div>
+  <div class="num">20</div>
+</section>
+
+<!-- SIM 7 -->
+<section class="slide">
+  <div class="tag">Sym · tb_sync_baseline</div>
+  <h2>Synchroniczna referencja</h2>
+  <div class="content figbox">
+    <img src="figures/sim_sync_wave.png" class="shot dark" style="max-height:58vh;" alt="tb_sync_baseline">
+    <div class="figcap"><strong style="color:var(--accent)">tb_sync_baseline</strong> — po <code>enable</code> licznik dzieli zegar, <code>osc_out</code> toggluje regularnie (stały okres). Deterministyczny, bez jitteru — punkt odniesienia dla wariantów async.</div>
+  </div>
+  <div class="num">21</div>
+</section>
+
+<!-- 14 SECTION: WYNIKI -->
+<section class="slide section-slide">
+  <div class="section-num">// 04</div>
+  <h1>Wyniki<br>z krzemu</h1>
+  <p class="subtitle" style="margin-top:1.5rem;max-width:62%;">Realne pomiary na Zybo Z7-10 — zero mocków. Każda liczba pochodzi z 4096 okien przez ILA.</p>
+  <div class="num">22</div>
+</section>
+
+<!-- 15 DEMO HW -->
+<section class="slide">
+  <div class="tag">11 · Demo HW</div>
+  <h2>Ring oscyluje na krzemie — płytka na żywo</h2>
+  <div class="content"><div class="two">
+    <div>
+      <table>
+        <tr><th>SW1..0</th><th>wariant</th><th>LD3 (osc)</th></tr>
+        <tr><td>00</td><td>sync</td><td>miga (wolny)</td></tr>
+        <tr><td>01</td><td>carry ring</td><td>ciągły (setki MHz)</td></tr>
+        <tr><td>10</td><td>loopback</td><td>ciągły</td></tr>
+        <tr><td>11</td><td>lut ring</td><td>ciągły</td></tr>
+      </table>
+      <p style="margin-top:.9rem;">SW0/SW1 = wybór wariantu, SW2/SW3 = strojenie tap. LD0 miga (alive — PL żyje).</p>
+      <div class="note" style="margin-top:.9rem;">Sync <strong>MIGA</strong>, async <strong>ŚWIECI ciągle</strong> — bo oscyluje setki MHz, oko nie nadąża. Wizualna różnica sync vs async gołym okiem.</div>
+    </div>
+    <div class="figbox">
+      <img src="figures/board_photo.jpeg" class="shot tall" alt="Zybo Z7-10">
+      <div class="figcap">Zybo Z7-10 na żywo: LD13 DONE (zielona) = bitstream wgrany, LD0–3 świecą (PL działa), zielony kabelek = zworka loopback Pmod JE1↔JE2 (pętla off-chip).</div>
+    </div>
+  </div></div>
+  <div class="num">23</div>
+</section>
+
+<!-- ILA CAPTURE -->
+<section class="slide">
+  <div class="tag">Pomiar · ILA</div>
+  <h2>ILA na żywo — freq_count z krzemu</h2>
+  <div class="content figbox">
+    <img src="figures/ila_capture.png" class="shot dark" style="max-height:56vh;" alt="ILA Hardware Manager">
+    <div class="figcap">Hardware Manager: rdzeń ILA przechwytuje <code>freq_count</code> przez JTAG z działającego FPGA. Storage qualification (<code>freq_valid==1</code>) — każda próbka to osobne okno 1 ms. 4096 próbek = pełny rozkład → statystyka i jitter. <strong>Tak powstały wszystkie poniższe wyniki.</strong></div>
+  </div>
+  <div class="num">24</div>
+</section>
+
+<!-- 16 EXP_01 f(N) -->
+<section class="slide">
+  <div class="tag">12 · EXP_01</div>
+  <h2>Krzywa strojenia f(N) — CARRY4</h2>
+  <div class="content"><div class="two">
+    <div class="figbox">
+      <img src="figures/fig_exp01_fN.png" class="shot light" alt="f(N)">
+      <div class="figcap">Częstotliwość maleje z długością pętli — krzywa f(N) z 4 punktów po 4096 okien.</div>
+    </div>
+    <div>
+      <table>
+        <tr><th>tap</th><th>stopnie</th><th>f [MHz]</th><th>jitter</th></tr>
+        <tr><td>00</td><td>16</td><td><strong>134.4</strong></td><td>129 ppm</td></tr>
+        <tr><td>01</td><td>32</td><td>116.8</td><td>137 ppm</td></tr>
+        <tr><td>10</td><td>48</td><td>83.8</td><td>141 ppm</td></tr>
+        <tr><td>11</td><td>64</td><td>66.6</td><td>148 ppm</td></tr>
+      </table>
+      <p style="margin-top:.9rem;">Krótsza pętla = wyższa f. Linearyzacja <code>1/f vs N</code> → <strong>t_d ≈ 81.5 ps/stopień</strong>.</p>
+      <div class="note" style="margin-top:.9rem;"><strong>Realne dane z krzemu.</strong> f: 134 → 67 MHz. Jitter rośnie z długością pętli (więcej skumulowanego szumu termicznego).</div>
+    </div>
+  </div></div>
+  <div class="num">25</div>
+</section>
+
+<!-- 17 EXP_02 JITTER -->
+<section class="slide">
+  <div class="tag">13 · EXP_02</div>
+  <h2>Jitter — szum termiczny ringu</h2>
+  <div class="content"><div class="two">
+    <div class="figbox">
+      <img src="figures/fig_jitter_carry_16.png" class="shot light" alt="jitter histogram">
+      <div class="figcap">Histogram 4096 pomiarów — rozkład freq_count wokół średniej = jitter.</div>
+    </div>
+    <div>
+      <p>4096 pomiarów co 1 ms (storage-qualified <code>freq_valid==1</code>). Rozrzut freq_count = jitter ringu.</p>
+      <div class="card good" style="margin-top:1rem;">
+        <h3>carry tap0 / 16 stopni (REALNE)</h3>
+        <p class="big">129 ppm</p>
+        <p>σ = 17.3 kHz, f = 134.4 MHz, 8 poziomów (8395–8402)</p>
+      </div>
+      <div class="note" style="margin-top:1rem;">Prescaler /16 → 8 poziomów (nie 2) → realny rozkład. Jitter rośnie z N: 129 → 148 ppm (16 → 64 stopni).</div>
+    </div>
+  </div></div>
+  <div class="num">26</div>
+</section>
+
+<!-- 18 EXP_03 DRIFT -->
+<section class="slide">
+  <div class="tag">14 · EXP_03</div>
+  <h2>Drift termiczny — krzemowy termometr</h2>
+  <div class="content"><div class="two">
+    <div>
+      <p>Pomiar carry tap15 w różnych stanach termicznych (każdy 4096 okien):</p>
+      <table style="margin:1rem 0;">
+        <tr><th>stan</th><th>f [MHz]</th><th>σ jitter</th></tr>
+        <tr><td>zimny start</td><td>134.266</td><td>19.0 kHz</td></tr>
+        <tr><td>ciepły (5 min)</td><td>134.237</td><td>19.7 kHz</td></tr>
+        <tr><td>dłużej</td><td>134.250</td><td>19.8 kHz</td></tr>
+      </table>
+    </div>
+    <div>
+      <div class="note"><strong>Uczciwie:</strong> Δf ≈ 30 kHz mieści się w jitterze (σ ≈ 19 kHz). Przy lekkim obciążeniu mały xc7z010 słabo się grzeje — drift poniżej rozdzielczości pomiaru. Kierunek zgodny z teorią (cieplej → wolniej).</div>
+      <p style="margin-top:1rem;">Wyraźny f(T) wymagałby wymuszonego grzania (opalarka / workload). Mechanizm działa — RO to czujnik temperatury — ale przy tym obciążeniu efekt jest na granicy szumu. <strong>Raportujemy to, czego faktycznie dowodzą dane.</strong></p>
+    </div>
+  </div></div>
+  <div class="num">27</div>
+</section>
+
+<!-- 19 EXP_07 SYNC VS ASYNC pomiar -->
+<section class="slide">
+  <div class="tag">15 · EXP_07</div>
+  <h2>Sync vs Async — pomiar wariantów</h2>
+  <div class="content">
+    <table>
+      <tr><th>wariant</th><th>f [MHz]</th><th>σ [kHz]</th><th>rozrzut</th><th>charakter</th></tr>
+      <tr><td>sync (clk/16)</td><td>7.81</td><td>7.2</td><td>2 LSB (488/489)</td><td>referencja — floor</td></tr>
+      <tr><td>carry ring</td><td>134.4</td><td>17.3</td><td><strong>8 LSB</strong></td><td>jitter rozdzielony</td></tr>
+      <tr><td>lut ring</td><td>112.7</td><td>16.7</td><td><strong>8 LSB</strong></td><td>jitter rozdzielony</td></tr>
+      <tr><td>loopback</td><td>32.1</td><td>6.2</td><td>3 LSB</td><td>IO+PCB+kabel</td></tr>
+    </table>
+    <div class="note" style="margin-top:1rem;"><strong>Uczciwie:</strong> jitter ograniczony rozdzielczością licznika (±1 LSB ≈ 16 kHz). Szybkie ringi (carry/lut, freq_count ~8000) rozrzucają się na 8 LSB = jitter <strong>realnie rozdzielony</strong>. Sync (488 zbocz) i loopback na ±1 LSB = na granicy rozdzielczości — sync to stabilny kryształ (jitter poniżej progu pomiaru). Metryka ppm myli przy różnym freq_count, dlatego podajemy σ [kHz] + rozrzut LSB.</div>
+  </div>
+  <div class="num">28</div>
+</section>
+
+<!-- 20 LOOPBACK wynik -->
+<section class="slide">
+  <div class="tag">16 · IO Loopback</div>
+  <h2>Pętla poza krzemem — wynik</h2>
+  <div class="content"><div class="two">
+    <div>
+      <p>Ring zamknięty <strong>fizycznie kablem</strong> JE1↔JE2 (Pmod): inwerter → OBUF → pin → kabel → pin → IBUF → pętla.</p>
+      <ul class="clean" style="margin-top:1rem;">
+        <li><strong>f = 32.1 MHz</strong> — 4× wolniej niż carry (134 MHz)</li>
+        <li>Opóźnienie IO + PCB + kabel dominuje</li>
+        <li>σ = 6.2 kHz (3 LSB rozrzutu)</li>
+      </ul>
+      <div class="note" style="margin-top:1rem;">Dowód: async może być fizycznie zewnętrzny. Sygnał opuszcza krzem przez Pmod (kabelek JE1↔JE2) i wraca — domyka pętlę poza FPGA.</div>
+    </div>
+    <div class="figbox">
+      <img src="figures/fig_jitter_loop.png" class="shot light" alt="loopback histogram">
+      <div class="figcap">Histogram loopbacku — 32.1 MHz, rozrzut 3 LSB.</div>
+    </div>
+  </div></div>
+  <div class="num">29</div>
+</section>
+
+<!-- 21 TABELA PORÓWNAWCZA koncepcyjna -->
+<section class="slide">
+  <div class="tag">17 · Wynik główny</div>
+  <h2>Sync vs Async — pełne zestawienie</h2>
+  <div class="content">
+    <table>
+      <thead><tr><th>Parametr</th><th>Synchroniczny licznik</th><th>Asynchroniczny RO (CARRY4)</th></tr></thead>
+      <tbody>
+        <tr><td>Źródło opóźnienia</td><td>Zegar krystaliczny (stabilny)</td><td>Propagacja bramka → drut (fizyka)</td></tr>
+        <tr><td>Rozdzielczość strojenia</td><td>8 ns (takt 125 MHz)</td><td>~82 ps (stopień CARRY4) — zmierzone</td></tr>
+        <tr><td>Jitter</td><td>Pomijalny (kryształ)</td><td>Wysoki — szum termiczny (129 ppm)</td></tr>
+        <tr><td>Wrażliwość termiczna</td><td>Pomijalna</td><td>f maleje przy T↑ (kierunek potwierdzony)</td></tr>
+        <tr><td>Sterowalność</td><td>Łatwa, cyfrowa (rejestr)</td><td>Strukturalna (tap selector)</td></tr>
+        <tr><td>Determinizm</td><td>Pełny — bit-exact</td><td>Statystyczny — rozkład wokół średniej</td></tr>
+        <tr><td>Zasoby</td><td>~30 LUT + ~30 FF</td><td>77 CARRY4, 0 LUT w pętli (cel osiągnięty)</td></tr>
+        <tr><td>Zastosowanie</td><td>Takty, opóźnienia programowe</td><td>TRNG, PUF, czujnik temperatury</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="num">30</div>
+</section>
+
+<!-- 22 WNIOSKI -->
+<section class="slide">
+  <div class="tag">18 · Wnioski</div>
+  <h2>Wnioski</h2>
+  <div class="content"><div class="two top">
+    <div><h3>Techniczne</h3><ul class="clean">
+      <li>Ring oscillator bez LUT (CARRY4) <strong>działa na realnym krzemie</strong> — 134 MHz</li>
+      <li>Strojenie f długością pętli — pełna krzywa f(N), t_d ≈ 82 ps/stopień</li>
+      <li>Jitter mierzalny (129 ppm) — szum termiczny rozdzielony na 8 poziomów</li>
+      <li>IO-loopback dowodzi: pętla może być fizycznie zewnętrzna (~32 MHz)</li>
+      <li>Pełny stack: RTL → bitstream → krzem → ILA → analiza w Pythonie</li>
+    </ul></div>
+    <div><h3>Koncepcyjne</h3><ul class="clean">
+      <li>Synchroniczność FPGA = <strong>konwencja projektowa</strong>, nie ograniczenie fizyki</li>
+      <li>„Wady" krzemu (jitter, drift) → mierzalne <strong>cechy</strong></li>
+      <li>Fundament sprzętowego bezpieczeństwa: TRNG, PUF, krzemowy termometr</li>
+      <li>Walka z syntezatorem jest sama w sobie wartością — pokazuje granice toolchainu</li>
+    </ul></div>
+  </div></div>
+  <div class="num">31</div>
+</section>
+
+<!-- 23 FIN -->
+<section class="slide section-slide">
+  <div class="section-num">// fin</div>
+  <h1>Pytania?</h1>
+  <p class="subtitle" style="margin-top:1.5rem;max-width:70%;">Dziękujemy za uwagę.</p>
+  <div style="margin-top:3rem;display:flex;gap:3rem;font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--text-mute);">
+    <div><div style="color:var(--accent);font-size:.7rem;text-transform:uppercase;letter-spacing:.2em;margin-bottom:.3rem;">Kod źródłowy</div>Verilog · XDC · Python</div>
+    <div><div style="color:var(--accent);font-size:.7rem;text-transform:uppercase;letter-spacing:.2em;margin-bottom:.3rem;">Platforma</div>Xilinx Zynq-7010 · Zybo Z7-10</div>
+    <div><div style="color:var(--accent);font-size:.7rem;text-transform:uppercase;letter-spacing:.2em;margin-bottom:.3rem;">Toolchain</div>Vivado 2018.3 · ILA · matplotlib</div>
+  </div>
+  <div class="num">32</div>
+</section>
+
+</div>
+<div class="nav">
+  <button onclick="prev()" title="Poprzedni (←)">◂</button>
+  <span class="counter"><span id="cur">1</span> / <span id="tot">32</span></span>
+  <button onclick="next()" title="Następny (→)">▸</button>
+  <button onclick="toggleFs()" title="Pełny ekran (F)" style="margin-left:.4rem;">⛶</button>
+</div>
+<div class="kb-hint">← → space · F = fullscreen</div>
+<script>
+const s=document.querySelectorAll('.slide');let c=0;
+document.getElementById('tot').textContent=s.length;
+function show(n){s[c].classList.remove('active');c=(n+s.length)%s.length;
+  s[c].classList.add('active');document.getElementById('cur').textContent=c+1;}
+function next(){show(c+1)} function prev(){show(c-1)}
+function toggleFs(){if(!document.fullscreenElement)document.documentElement.requestFullscreen();else document.exitFullscreen();}
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){e.preventDefault();next();}
+  else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();prev();}
+  else if(e.key==='f'||e.key==='F')toggleFs();
+  else if(e.key==='Home')show(0);
+  else if(e.key==='End')show(s.length-1);});
+document.querySelector('.deck').addEventListener('click',e=>{
+  if(e.target.closest('.nav'))return;
+  const r=e.currentTarget.getBoundingClientRect();
+  if(e.clientX>r.width/2)next();else prev();});
+</script>
+</body>
+</html>

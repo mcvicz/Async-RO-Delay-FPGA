@@ -4,6 +4,34 @@ Chronologiczna historia projektu. Dopisujemy na bieżąco po każdej sesji.
 
 ---
 
+## Sesja 5 — 2026-06-10 (pomiary na krzemie + kampania)
+
+**Cel:** realne pomiary przez ILA, loopback, pełna kampania.
+
+### Zrobione
+- **Loopback realny** — `async_ro_loopback.v`: inwerter+OBUF→pin→zworka→IBUF, pętla off-chip. Zworka JE1(V12)↔JE2(W16) kabelkiem M-M (lutowana prowizorka, przegwizdana). DZIAŁA: ~33 MHz.
+- **ILA na freq_count** — mark_debug + Set Up Debug, capture przez JTAG. Long-path fix: `subst X:` (dbg_hub limit 146 znaków). MU_CNT=2 (capture control wymaga ≥2).
+- **Storage qualification** — C_EN_STRG_QUAL + bufor 4096, capture freq_valid==1 → 4096 osobnych okien 1ms = jitter.
+- **Pierwsze realne pomiary (zero mocków):**
+  - carry tap15: 142 MHz → 134 MHz (DRIFT termiczny ~5%, chip się grzał — EXP_03 gratis)
+  - loopback: 32.6 MHz
+  - jitter: carry 862 ppm, loopback 3604 ppm (loopback 4× głośniejszy)
+- **Excel PL fix** — `ila_collect.py` daje CSV ze średnikami + przecinkiem dziesiętnym (polski Excel czyta kolumny). Plus `ila_jitter.py` (histogram).
+- **Upgrade rozdzielczości** — prescaler /256→/16 (DIV_BITS=4) + sync_baseline WIDTH 24→4 (7.8MHz, mierzalny). Wszystkie 4 warianty mierzalne, jitter finer.
+
+### Nowe skrypty analizy
+`ila_to_freq.py`, `ila_collect.py` (Excel PL + f(N)), `ila_jitter.py` (histogram σ).
+
+### Lekcje
+- ILA dbg_hub: ścieżka temp <146 znaków → `subst X:` na repo
+- Capture control: MU_CNT≥2, C_EN_STRG_QUAL true, Capture Setup (nie Trigger) = storage qualifier
+- Export MUSI być Format=CSV (nie .ila natywny binarny)
+- /256 dawało LSB-limited jitter (2 wartości) → /16 dla finer
+
+### Stan: realne pomiary z krzemu. Kampania w toku.
+
+---
+
 ## Sesja 4 — 2026-06-09 (Zybo na żywo)
 
 **Cel:** uruchomienie na fizycznej płytce. Jamro dał **Zybo Z7-10 (xc7z010clg400-1)** — inny chip niż ZedBoard (xc7z020).

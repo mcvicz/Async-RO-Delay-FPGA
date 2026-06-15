@@ -54,3 +54,7 @@ analysis/exp0*.csv
 analysis/*_summary.csv
 analysis/fig_*.png
 analysis/pomiar*.csv
+
+# ILA native binary exports (CSV to wlasciwy artefakt)
+*.ila
+fpga_project/oscillator/oscillator.srcs/sim_1/new/iladata.csv

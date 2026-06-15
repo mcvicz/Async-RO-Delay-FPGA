@@ -1,0 +1,5 @@
+sample,timestamp_ms,variant,tap,edges,freq_khz,temp_c
+0,0,carry,15,8398,134368,0
+1,0,carry,31,7298,116768,0
+2,0,carry,47,5238,83808,0
+3,0,carry,63,4162,66592,0

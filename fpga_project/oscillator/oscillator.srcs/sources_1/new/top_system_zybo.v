@@ -48,7 +48,9 @@ module top_system_zybo (
     wire osc_lut;
 
     //--- Wariant 0: sync_baseline ---
-    sync_baseline #(.WIDTH(24)) inst_sync (
+    // WIDTH=4 -> osc_sync = clk/16 = 7.8 MHz: mierzalne + idealna referencja
+    // (krysztal, jitter ~0) do porownania z async. (WIDTH=24 dawalo 7Hz = 0 zbocz)
+    sync_baseline #(.WIDTH(4)) inst_sync (
         .clk     (clk_125mhz),
         .rst_n   (rst_n),
         .enable  (1'b1),
@@ -88,14 +90,26 @@ module top_system_zybo (
         endcase
     end
 
-    //--- Frequency counter (parametr WINDOW dostosowany do 125 MHz) ---
-    wire [31:0] freq_count;
-    wire        freq_valid;
+    //--- Prescaler /256 (umozliwia pomiar szybkiego ringu, omija Nyquist) ---
+    wire osc_div;
+    async_prescaler #(.DIV_BITS(4)) inst_presc (   // /16 -- lepsza rozdzielczosc
+        .osc_in  (osc_selected),
+        .rst_n   (rst_n),
+        .osc_div (osc_div)
+    );
+
+    //--- Frequency counter (okno 1 ms @ 125 MHz) ---
+    // mark_debug -> Vivado wstawi ILA, odczyt freq_count przez JTAG (Hardware Manager)
+    // Realna f ringu = freq_count * 256 / 1ms = freq_count * 256 kHz
+    (* mark_debug = "true" *) wire [31:0] freq_count;
+    (* mark_debug = "true" *) wire        freq_valid;
+    (* mark_debug = "true" *) wire [1:0]  dbg_sw_mode  = sw_mode;
+    (* mark_debug = "true" *) wire [1:0]  dbg_sw_tap   = sw_tap_short;
 
     freq_counter #(.WINDOW_CYCLES(125_000)) inst_fcount (   // 1 ms @ 125 MHz
         .clk        (clk_125mhz),
         .rst_n      (rst_n),
-        .osc_in     (osc_selected),
+        .osc_in     (osc_div),
         .freq_count (freq_count),
         .valid      (freq_valid)
     );

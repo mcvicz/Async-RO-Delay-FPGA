@@ -1,0 +1,2003 @@
+{
+  "alpha": 0.01,
+  "good_sources": [
+    "carry_16",
+    "carry_32",
+    "carry_48",
+    "carry_64",
+    "lut"
+  ],
+  "sources_bias": [
+    {
+      "source": "carry_16",
+      "p_one": 0.490234375,
+      "class": "good",
+      "n": 4096
+    },
+    {
+      "source": "carry_32",
+      "p_one": 0.50537109375,
+      "class": "good",
+      "n": 4096
+    },
+    {
+      "source": "carry_48",
+      "p_one": 0.48681640625,
+      "class": "good",
+      "n": 4096
+    },
+    {
+      "source": "carry_64",
+      "p_one": 0.4912109375,
+      "class": "good",
+      "n": 4096
+    },
+    {
+      "source": "loop",
+      "p_one": 0.834716796875,
+      "class": "poor",
+      "n": 4096
+    },
+    {
+      "source": "lut",
+      "p_one": 0.49462890625,
+      "class": "good",
+      "n": 4096
+    },
+    {
+      "source": "sync",
+      "p_one": 0.28125,
+      "class": "poor",
+      "n": 4096
+    },
+    {
+      "source": "drift__carry_16_cold",
+      "p_one": 0.49951171875,
+      "class": "good",
+      "n": 4096
+    },
+    {
+      "source": "drift__carry_16_warm",
+      "p_one": 0.489013671875,
+      "class": "good",
+      "n": 4096
+    },
+    {
+      "source": "drift__carry_16_warm_longer",
+      "p_one": 0.500732421875,
+      "class": "good",
+      "n": 4096
+    }
+  ],
+  "bit_files": {
+    "raw_lsb__carry_16": {
+      "bin": "bits/raw_lsb__carry_16.bin",
+      "txt": "bits/raw_lsb__carry_16.bits.txt"
+    },
+    "raw_lsb__carry_32": {
+      "bin": "bits/raw_lsb__carry_32.bin",
+      "txt": "bits/raw_lsb__carry_32.bits.txt"
+    },
+    "raw_lsb__carry_48": {
+      "bin": "bits/raw_lsb__carry_48.bin",
+      "txt": "bits/raw_lsb__carry_48.bits.txt"
+    },
+    "raw_lsb__carry_64": {
+      "bin": "bits/raw_lsb__carry_64.bin",
+      "txt": "bits/raw_lsb__carry_64.bits.txt"
+    },
+    "raw_lsb__loop": {
+      "bin": "bits/raw_lsb__loop.bin",
+      "txt": "bits/raw_lsb__loop.bits.txt"
+    },
+    "raw_lsb__lut": {
+      "bin": "bits/raw_lsb__lut.bin",
+      "txt": "bits/raw_lsb__lut.bits.txt"
+    },
+    "raw_lsb__sync": {
+      "bin": "bits/raw_lsb__sync.bin",
+      "txt": "bits/raw_lsb__sync.bits.txt"
+    },
+    "raw_lsb__drift__carry_16_cold": {
+      "bin": "bits/raw_lsb__drift__carry_16_cold.bin",
+      "txt": "bits/raw_lsb__drift__carry_16_cold.bits.txt"
+    },
+    "raw_lsb__drift__carry_16_warm": {
+      "bin": "bits/raw_lsb__drift__carry_16_warm.bin",
+      "txt": "bits/raw_lsb__drift__carry_16_warm.bits.txt"
+    },
+    "raw_lsb__drift__carry_16_warm_longer": {
+      "bin": "bits/raw_lsb__drift__carry_16_warm_longer.bin",
+      "txt": "bits/raw_lsb__drift__carry_16_warm_longer.bits.txt"
+    },
+    "pool_good_raw": {
+      "bin": "bits/pool_good_raw.bin",
+      "txt": "bits/pool_good_raw.bits.txt"
+    },
+    "pool_all_raw": {
+      "bin": "bits/pool_all_raw.bin",
+      "txt": "bits/pool_all_raw.bits.txt"
+    },
+    "xor_combine_good": {
+      "bin": "bits/xor_combine_good.bin",
+      "txt": "bits/xor_combine_good.bits.txt"
+    },
+    "vn_pool_good": {
+      "bin": "bits/vn_pool_good.bin",
+      "txt": "bits/vn_pool_good.bits.txt"
+    },
+    "vn_xor_good": {
+      "bin": "bits/vn_xor_good.bin",
+      "txt": "bits/vn_xor_good.bits.txt"
+    },
+    "xorw_pool_good": {
+      "bin": "bits/xorw_pool_good.bin",
+      "txt": "bits/xorw_pool_good.bits.txt"
+    }
+  },
+  "streams": {
+    "raw_lsb__carry_16": {
+      "name": "raw_lsb__carry_16",
+      "n_bits": 4096,
+      "p_one": 0.490234375,
+      "shannon_bit": 0.9997248102609695,
+      "min_entropy_bit": 0.9720940034301155,
+      "ent": {
+        "n_bytes": 512,
+        "entropy_bits_per_byte": 7.523880978038205,
+        "entropy_bits_per_bit": 0.9404851222547757,
+        "chi_square": 314.0,
+        "chi_square_p": 0.006878704171529337,
+        "arithmetic_mean": 121.94921875,
+        "monte_carlo_pi": 3.2,
+        "monte_carlo_pi_error_pct": 1.8591635788130245,
+        "serial_correlation": -0.0625149670832846,
+        "optimum_compression_pct": 5.951487774522435
+      },
+      "ent_ideal_at_n": {
+        "mean": 7.5854359005814835,
+        "std": 0.03430947617124794,
+        "note": "oczekiwana entropia bajtowa idealnego CSPRNG dla tej liczby bajtów"
+      },
+      "nist": {
+        "monobit": {
+          "p_value": 0.21129954733371056,
+          "detail": {
+            "n": 4096,
+            "sum": -80.0,
+            "s_obs": 1.25
+          }
+        },
+        "block_frequency": {
+          "p_value": 0.5968741220910004,
+          "detail": {
+            "M": 128,
+            "N": 32,
+            "chi_square": 29.4375
+          }
+        },
+        "runs": {
+          "p_value": 0.6665931402484606,
+          "detail": {
+            "pi": 0.490234375,
+            "runs": 2061
+          }
+        },
+        "longest_run": {
+          "p_value": 0.5573153514589333,
+          "detail": {
+            "M": 8,
+            "blocks": 16,
+            "chi_square": 2.0733876737597448,
+            "v": [
+              5,
+              6,
+              4,
+              1
+            ]
+          }
+        },
+        "dft_spectral": {
+          "p_value": 0.038947455742024205,
+          "detail": {
+            "T": 110.77237648654626,
+            "n0_expected": 1945.6,
+            "n1_observed": 1960.0,
+            "d": 2.064741604835069
+          }
+        },
+        "approx_entropy": {
+          "p_value": 0.641529124822932,
+          "detail": {
+            "m": 2,
+            "ap_en": 0.6928398850831292,
+            "chi_square": 2.5173645460772605
+          }
+        },
+        "cusum_fwd": {
+          "p_value": 0.4222454263475237,
+          "detail": {
+            "mode": 0,
+            "z": 80.0
+          }
+        },
+        "cusum_bwd": {
+          "p_value": 0.2290693971597313,
+          "detail": {
+            "mode": 1,
+            "z": 101.0
+          }
+        },
+        "serial": {
+          "p_value": 0.6502401953141559,
+          "detail": {
+            "m": 3,
+            "psi2_m": 5.734375,
+            "del1": 2.46875,
+            "del2": 0.765625,
+            "p_value2": 0.6819407511903481
+          }
+        }
+      },
+      "nist_pass_fail": {
+        "monobit": true,
+        "block_frequency": true,
+        "runs": true,
+        "longest_run": true,
+        "dft_spectral": true,
+        "approx_entropy": true,
+        "cusum_fwd": true,
+        "cusum_bwd": true,
+        "serial": true
+      },
+      "autocorr_max_abs": 0.043842198107712824
+    },
+    "raw_lsb__carry_32": {
+      "name": "raw_lsb__carry_32",
+      "n_bits": 4096,
+      "p_one": 0.50537109375,
+      "shannon_bit": 0.9999167587960085,
+      "min_entropy_bit": 0.9845849476133124,
+      "ent": {
+        "n_bytes": 512,
+        "entropy_bits_per_byte": 7.6238994581767106,
+        "entropy_bits_per_bit": 0.9529874322720888,
+        "chi_square": 231.0,
+        "chi_square_p": 0.8573014715602482,
+        "arithmetic_mean": 128.04296875,
+        "monte_carlo_pi": 3.4352941176470586,
+        "monte_carlo_pi_error_pct": 9.348807959608088,
+        "serial_correlation": -0.04649227329841525,
+        "optimum_compression_pct": 4.701256772791118
+      },
+      "ent_ideal_at_n": {
+        "mean": 7.5854359005814835,
+        "std": 0.03430947617124794,
+        "note": "oczekiwana entropia bajtowa idealnego CSPRNG dla tej liczby bajtów"
+      },
+      "nist": {
+        "monobit": {
+          "p_value": 0.4917677007605229,
+          "detail": {
+            "n": 4096,
+            "sum": 44.0,
+            "s_obs": 0.6875
+          }
+        },
+        "block_frequency": {
+          "p_value": 0.3196364605034052,
+          "detail": {
+            "M": 128,
+            "N": 32,
+            "chi_square": 35.1875
+          }
+        },
+        "runs": {
+          "p_value": 0.13549294980394663,
+          "detail": {
+            "pi": 0.50537109375,
+            "runs": 2000
+          }
+        },
+        "longest_run": {
+          "p_value": 0.04821485550215238,
+          "detail": {
+            "M": 8,
+            "blocks": 16,
+            "chi_square": 7.895807358923161,
+            "v": [
+              2,
+              6,
+              1,
+              7
+            ]
+          }
+        },
+        "dft_spectral": {
+          "p_value": 0.8409028448739008,
+          "detail": {
+            "T": 110.77237648654626,
+            "n0_expected": 1945.6,
+            "n1_observed": 1947.0,
+            "d": 0.2007387671367546
+          }
+        },
+        "approx_entropy": {
+          "p_value": 0.17320904920300184,
+          "detail": {
+            "m": 2,
+            "ap_en": 0.6923696687814367,
+            "chi_square": 6.3693764895424465
+          }
+        },
+        "cusum_fwd": {
+          "p_value": 0.6008948225808148,
+          "detail": {
+            "mode": 0,
+            "z": 66.0
+          }
+        },
+        "cusum_bwd": {
+          "p_value": 0.25140652841507416,
+          "detail": {
+            "mode": 1,
+            "z": 98.0
+          }
+        },
+        "serial": {
+          "p_value": 0.17963723031107318,
+          "detail": {
+            "m": 3,
+            "psi2_m": 9.46875,
+            "del1": 6.2734375,
+            "del2": 3.55078125,
+            "p_value2": 0.16941725795588689
+          }
+        }
+      },
+      "nist_pass_fail": {
+        "monobit": true,
+        "block_frequency": true,
+        "runs": true,
+        "longest_run": true,
+        "dft_spectral": true,
+        "approx_entropy": true,
+        "cusum_fwd": true,
+        "cusum_bwd": true,
+        "serial": true
+      },
+      "autocorr_max_abs": 0.030192209347623407
+    },
+    "raw_lsb__carry_48": {
+      "name": "raw_lsb__carry_48",
+      "n_bits": 4096,
+      "p_one": 0.48681640625,
+      "shannon_bit": 0.9994984404642331,
+      "min_entropy_bit": 0.9624530460378216,
+      "ent": {
+        "n_bytes": 512,
+        "entropy_bits_per_byte": 7.561115622474297,
+        "entropy_bits_per_bit": 0.9451394528092871,
+        "chi_square": 263.0,
+        "chi_square_p": 0.3519513842304096,
+        "arithmetic_mean": 124.783203125,
+        "monte_carlo_pi": 3.152941176470588,
+        "monte_carlo_pi_error_pct": 0.3612347026540007,
+        "serial_correlation": 0.07386718671075293,
+        "optimum_compression_pct": 5.486054719071287
+      },
+      "ent_ideal_at_n": {
+        "mean": 7.5854359005814835,
+        "std": 0.03430947617124794,
+        "note": "oczekiwana entropia bajtowa idealnego CSPRNG dla tej liczby bajtów"
+      },
+      "nist": {
+        "monobit": {
+          "p_value": 0.09150724992348226,
+          "detail": {
+            "n": 4096,
+            "sum": -108.0,
+            "s_obs": 1.6875
+          }
+        },
+        "block_frequency": {
+          "p_value": 8.129539763319025e-06,
+          "detail": {
+            "M": 128,
+            "N": 32,
+            "chi_square": 78.75
+          }
+        },
+        "runs": {
+          "p_value": 0.2158585542161841,
+          "detail": {
+            "pi": 0.48681640625,
+            "runs": 2007
+          }
+        },
+        "longest_run": {
+          "p_value": 0.3414122814987178,
+          "detail": {
+            "M": 8,
+            "blocks": 16,
+            "chi_square": 3.3451178742198175,
+            "v": [
+              6,
+              3,
+              4,
+              3
+            ]
+          }
+        },
+        "dft_spectral": {
+          "p_value": 0.9314418534713054,
+          "detail": {
+            "T": 110.77237648654626,
+            "n0_expected": 1945.6,
+            "n1_observed": 1945.0,
+            "d": -0.08603090020144763
+          }
+        },
+        "approx_entropy": {
+          "p_value": 0.014247073606987796,
+          "detail": {
+            "m": 2,
+            "ap_en": 0.6916263423406919,
+            "chi_square": 12.458706692123997
+          }
+        },
+        "cusum_fwd": {
+          "p_value": 0.09442809647425188,
+          "detail": {
+            "mode": 0,
+            "z": 127.0
+          }
+        },
+        "cusum_bwd": {
+          "p_value": 0.06717322542786919,
+          "detail": {
+            "mode": 1,
+            "z": 136.0
+          }
+        },
+        "serial": {
+          "p_value": 0.01373890175102479,
+          "detail": {
+            "m": 3,
+            "psi2_m": 19.9609375,
+            "del1": 12.54296875,
+            "del2": 7.97265625,
+            "p_value2": 0.018567767623119805
+          }
+        }
+      },
+      "nist_pass_fail": {
+        "monobit": true,
+        "block_frequency": false,
+        "runs": true,
+        "longest_run": true,
+        "dft_spectral": true,
+        "approx_entropy": true,
+        "cusum_fwd": true,
+        "cusum_bwd": true,
+        "serial": true
+      },
+      "autocorr_max_abs": 0.04087436063840904
+    },
+    "raw_lsb__carry_64": {
+      "name": "raw_lsb__carry_64",
+      "n_bits": 4096,
+      "p_one": 0.4912109375,
+      "shannon_bit": 0.9997770990046065,
+      "min_entropy_bit": 0.9748604377214918,
+      "ent": {
+        "n_bytes": 512,
+        "entropy_bits_per_byte": 7.543901832091063,
+        "entropy_bits_per_bit": 0.9429877290113828,
+        "chi_square": 282.0,
+        "chi_square_p": 0.1179917668756921,
+        "arithmetic_mean": 124.5546875,
+        "monte_carlo_pi": 2.8705882352941177,
+        "monte_carlo_pi_error_pct": 8.626338554300085,
+        "serial_correlation": 0.12742387330341853,
+        "optimum_compression_pct": 5.701227098861716
+      },
+      "ent_ideal_at_n": {
+        "mean": 7.5854359005814835,
+        "std": 0.03430947617124794,
+        "note": "oczekiwana entropia bajtowa idealnego CSPRNG dla tej liczby bajtów"
+      },
+      "nist": {
+        "monobit": {
+          "p_value": 0.26058903427361774,
+          "detail": {
+            "n": 4096,
+            "sum": -72.0,
+            "s_obs": 1.125
+          }
+        },
+        "block_frequency": {
+          "p_value": 5.867113725319453e-21,
+          "detail": {
+            "M": 128,
+            "N": 32,
+            "chi_square": 171.25
+          }
+        },
+        "runs": {
+          "p_value": 0.21847068870701838,
+          "detail": {
+            "pi": 0.4912109375,
+            "runs": 2008
+          }
+        },
+        "longest_run": {
+          "p_value": 0.5537811368578573,
+          "detail": {
+            "M": 8,
+            "blocks": 16,
+            "chi_square": 2.0907757897758596,
+            "v": [
+              2,
+              5,
+              4,
+              5
+            ]
+          }
+        },
+        "dft_spectral": {
+          "p_value": 0.509529660595049,
+          "detail": {
+            "T": 110.77237648654626,
+            "n0_expected": 1945.6,
+            "n1_observed": 1941.0,
+            "d": -0.659570234877852
+          }
+        },
+        "approx_entropy": {
+          "p_value": 3.688215896829593e-09,
+          "detail": {
+            "m": 2,
+            "ap_en": 0.6876348620969683,
+            "chi_square": 45.15691284870718
+          }
+        },
+        "cusum_fwd": {
+          "p_value": 0.07256451198230174,
+          "detail": {
+            "mode": 0,
+            "z": 134.0
+          }
+        },
+        "cusum_bwd": {
+          "p_value": 0.0025750136572684212,
+          "detail": {
+            "mode": 1,
+            "z": 206.0
+          }
+        },
+        "serial": {
+          "p_value": 2.4720880147421734e-09,
+          "detail": {
+            "m": 3,
+            "psi2_m": 50.0859375,
+            "del1": 45.9921875,
+            "del2": 43.1640625,
+            "p_value2": 4.236848353264163e-10
+          }
+        }
+      },
+      "nist_pass_fail": {
+        "monobit": true,
+        "block_frequency": false,
+        "runs": true,
+        "longest_run": true,
+        "dft_spectral": true,
+        "approx_entropy": false,
+        "cusum_fwd": true,
+        "cusum_bwd": false,
+        "serial": false
+      },
+      "autocorr_max_abs": 0.10397095612058217
+    },
+    "raw_lsb__loop": {
+      "name": "raw_lsb__loop",
+      "n_bits": 4096,
+      "p_one": 0.834716796875,
+      "shannon_bit": 0.6468001560851933,
+      "min_entropy_bit": 0.2606412925666055,
+      "ent": {
+        "n_bytes": 512,
+        "entropy_bits_per_byte": 4.862972325844691,
+        "entropy_bits_per_bit": 0.6078715407305864,
+        "chi_square": 9001.0,
+        "chi_square_p": 0.0,
+        "arithmetic_mean": 213.814453125,
+        "monte_carlo_pi": 0.4235294117647059,
+        "monte_carlo_pi_error_pct": 86.51864011456887,
+        "serial_correlation": 0.14782256313821307,
+        "optimum_compression_pct": 39.21284592694136
+      },
+      "ent_ideal_at_n": {
+        "mean": 7.5854359005814835,
+        "std": 0.03430947617124794,
+        "note": "oczekiwana entropia bajtowa idealnego CSPRNG dla tej liczby bajtów"
+      },
+      "nist": {
+        "monobit": {
+          "p_value": 0.0,
+          "detail": {
+            "n": 4096,
+            "sum": 2742.0,
+            "s_obs": 42.84375
+          }
+        },
+        "block_frequency": {
+          "p_value": 0.0,
+          "detail": {
+            "M": 128,
+            "N": 32,
+            "chi_square": 1888.28125
+          }
+        },
+        "runs": {
+          "p_value": 0.0,
+          "detail": {
+            "pi": 0.834716796875,
+            "precondition_failed": true
+          }
+        },
+        "longest_run": {
+          "p_value": 6.508619137223511e-11,
+          "detail": {
+            "M": 8,
+            "blocks": 16,
+            "chi_square": 50.4179320318149,
+            "v": [
+              0,
+              0,
+              2,
+              14
+            ]
+          }
+        },
+        "dft_spectral": {
+          "p_value": 8.113147213812691e-37,
+          "detail": {
+            "T": 110.77237648654626,
+            "n0_expected": 1945.6,
+            "n1_observed": 2034.0,
+            "d": 12.675219296348551
+          }
+        },
+        "approx_entropy": {
+          "p_value": 0.0,
+          "detail": {
+            "m": 2,
+            "ap_en": 0.4438539588355177,
+            "chi_square": 2042.2100723665108
+          }
+        },
+        "cusum_fwd": {
+          "p_value": 0.0,
+          "detail": {
+            "mode": 0,
+            "z": 2743.0
+          }
+        },
+        "cusum_bwd": {
+          "p_value": 0.0,
+          "detail": {
+            "mode": 1,
+            "z": 2742.0
+          }
+        },
+        "serial": {
+          "p_value": 0.0,
+          "detail": {
+            "m": 3,
+            "psi2_m": 7789.95703125,
+            "del1": 3446.029296875,
+            "del2": 937.6884765625,
+            "p_value2": 2.418435127641385e-204
+          }
+        }
+      },
+      "nist_pass_fail": {
+        "monobit": false,
+        "block_frequency": false,
+        "runs": false,
+        "longest_run": false,
+        "dft_spectral": false,
+        "approx_entropy": false,
+        "cusum_fwd": false,
+        "cusum_bwd": false,
+        "serial": false
+      },
+      "autocorr_max_abs": 0.07743498588283289
+    },
+    "raw_lsb__lut": {
+      "name": "raw_lsb__lut",
+      "n_bits": 4096,
+      "p_one": 0.49462890625,
+      "shannon_bit": 0.9999167587960085,
+      "min_entropy_bit": 0.9845849476133124,
+      "ent": {
+        "n_bytes": 512,
+        "entropy_bits_per_byte": 7.6036562394724125,
+        "entropy_bits_per_bit": 0.9504570299340516,
+        "chi_square": 249.0,
+        "chi_square_p": 0.5941420654502769,
+        "arithmetic_mean": 124.1796875,
+        "monte_carlo_pi": 2.823529411764706,
+        "monte_carlo_pi_error_pct": 10.124267430459094,
+        "serial_correlation": -0.008067765969784186,
+        "optimum_compression_pct": 4.954297006594843
+      },
+      "ent_ideal_at_n": {
+        "mean": 7.5854359005814835,
+        "std": 0.03430947617124794,
+        "note": "oczekiwana entropia bajtowa idealnego CSPRNG dla tej liczby bajtów"
+      },
+      "nist": {
+        "monobit": {
+          "p_value": 0.4917677007605229,
+          "detail": {
+            "n": 4096,
+            "sum": -44.0,
+            "s_obs": 0.6875
+          }
+        },
+        "block_frequency": {
+          "p_value": 0.29407668755684047,
+          "detail": {
+            "M": 128,
+            "N": 32,
+            "chi_square": 35.8125
+          }
+        },
+        "runs": {
+          "p_value": 0.38555044025920304,
+          "detail": {
+            "pi": 0.49462890625,
+            "runs": 2020
+          }
+        },
+        "longest_run": {
+          "p_value": 0.8768790942601203,
+          "detail": {
+            "M": 8,
+            "blocks": 16,
+            "chi_square": 0.6843481791649701,
+            "v": [
+              4,
+              5,
+              3,
+              4
+            ]
+          }
+        },
+        "dft_spectral": {
+          "p_value": 0.6057249255219533,
+          "detail": {
+            "T": 110.77237648654626,
+            "n0_expected": 1945.6,
+            "n1_observed": 1942.0,
+            "d": -0.516185401208751
+          }
+        },
+        "approx_entropy": {
+          "p_value": 0.7783437309014929,
+          "detail": {
+            "m": 2,
+            "ap_en": 0.6929313684607288,
+            "chi_square": 1.7679327167816155
+          }
+        },
+        "cusum_fwd": {
+          "p_value": 0.5460624059279423,
+          "detail": {
+            "mode": 0,
+            "z": 70.0
+          }
+        },
+        "cusum_bwd": {
+          "p_value": 0.5068082238541447,
+          "detail": {
+            "mode": 1,
+            "z": 73.0
+          }
+        },
+        "serial": {
+          "p_value": 0.7716246349220024,
+          "detail": {
+            "m": 3,
+            "psi2_m": 3.515625,
+            "del1": 1.8046875,
+            "del2": 0.56640625,
+            "p_value2": 0.7533667446967808
+          }
+        }
+      },
+      "nist_pass_fail": {
+        "monobit": true,
+        "block_frequency": true,
+        "runs": true,
+        "longest_run": true,
+        "dft_spectral": true,
+        "approx_entropy": true,
+        "cusum_fwd": true,
+        "cusum_bwd": true,
+        "serial": true
+      },
+      "autocorr_max_abs": 0.027724630378747776
+    },
+    "raw_lsb__sync": {
+      "name": "raw_lsb__sync",
+      "n_bits": 4096,
+      "p_one": 0.28125,
+      "shannon_bit": 0.8571484374283715,
+      "min_entropy_bit": 0.4764380439429871,
+      "ent": {
+        "n_bytes": 512,
+        "entropy_bits_per_byte": 2.0,
+        "entropy_bits_per_bit": 0.25,
+        "chi_square": 32256.0,
+        "chi_square_p": 0.0,
+        "arithmetic_mean": 79.75,
+        "monte_carlo_pi": 4.0,
+        "monte_carlo_pi_error_pct": 27.323954473516274,
+        "serial_correlation": -0.4370681427753388,
+        "optimum_compression_pct": 75.0
+      },
+      "ent_ideal_at_n": {
+        "mean": 7.5854359005814835,
+        "std": 0.03430947617124794,
+        "note": "oczekiwana entropia bajtowa idealnego CSPRNG dla tej liczby bajtów"
+      },
+      "nist": {
+        "monobit": {
+          "p_value": 1.624773893931884e-172,
+          "detail": {
+            "n": 4096,
+            "sum": -1792.0,
+            "s_obs": 28.0
+          }
+        },
+        "block_frequency": {
+          "p_value": 3.599594864022943e-144,
+          "detail": {
+            "M": 128,
+            "N": 32,
+            "chi_square": 784.0
+          }
+        },
+        "runs": {
+          "p_value": 0.0,
+          "detail": {
+            "pi": 0.28125,
+            "precondition_failed": true
+          }
+        },
+        "longest_run": {
+          "p_value": 1.2366066003143026e-12,
+          "detail": {
+            "M": 8,
+            "blocks": 16,
+            "chi_square": 58.487895716946,
+            "v": [
+              16,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        "dft_spectral": {
+          "p_value": 1.290019996325183e-37,
+          "detail": {
+            "T": 110.77237648654626,
+            "n0_expected": 1945.6,
+            "n1_observed": 2035.0,
+            "d": 12.818604130017652
+          }
+        },
+        "approx_entropy": {
+          "p_value": 0.0,
+          "detail": {
+            "m": 2,
+            "ap_en": 0.28514349551303586,
+            "chi_square": 3342.366187904282
+          }
+        },
+        "cusum_fwd": {
+          "p_value": 0.0,
+          "detail": {
+            "mode": 0,
+            "z": 1792.0
+          }
+        },
+        "cusum_bwd": {
+          "p_value": 0.0,
+          "detail": {
+            "mode": 1,
+            "z": 1792.0
+          }
+        },
+        "serial": {
+          "p_value": 0.0,
+          "detail": {
+            "m": 3,
+            "psi2_m": 4480.0,
+            "del1": 2848.0,
+            "del2": 2000.0,
+            "p_value2": 0.0
+          }
+        }
+      },
+      "nist_pass_fail": {
+        "monobit": false,
+        "block_frequency": false,
+        "runs": false,
+        "longest_run": false,
+        "dft_spectral": false,
+        "approx_entropy": false,
+        "cusum_fwd": false,
+        "cusum_bwd": false,
+        "serial": false
+      },
+      "autocorr_max_abs": 0.9921875
+    },
+    "raw_lsb__drift__carry_16_cold": {
+      "name": "raw_lsb__drift__carry_16_cold",
+      "n_bits": 4096,
+      "p_one": 0.49951171875,
+      "shannon_bit": 0.9999993120692872,
+      "min_entropy_bit": 0.9985918056071916,
+      "ent": {
+        "n_bytes": 512,
+        "entropy_bits_per_byte": 7.616522150611327,
+        "entropy_bits_per_bit": 0.9520652688264158,
+        "chi_square": 244.0,
+        "chi_square_p": 0.6789054483314515,
+        "arithmetic_mean": 125.494140625,
+        "monte_carlo_pi": 3.3411764705882354,
+        "monte_carlo_pi_error_pct": 6.3529502072900685,
+        "serial_correlation": 0.015892712685672532,
+        "optimum_compression_pct": 4.793473117358415
+      },
+      "ent_ideal_at_n": {
+        "mean": 7.5854359005814835,
+        "std": 0.03430947617124794,
+        "note": "oczekiwana entropia bajtowa idealnego CSPRNG dla tej liczby bajtów"
+      },
+      "nist": {
+        "monobit": {
+          "p_value": 0.9501646619415056,
+          "detail": {
+            "n": 4096,
+            "sum": -4.0,
+            "s_obs": 0.0625
+          }
+        },
+        "block_frequency": {
+          "p_value": 0.9621931805820054,
+          "detail": {
+            "M": 128,
+            "N": 32,
+            "chi_square": 19.3125
+          }
+        },
+        "runs": {
+          "p_value": 0.24755350530675524,
+          "detail": {
+            "pi": 0.49951171875,
+            "runs": 2085
+          }
+        },
+        "longest_run": {
+          "p_value": 0.8567913899300152,
+          "detail": {
+            "M": 8,
+            "blocks": 16,
+            "chi_square": 0.7693154994264079,
+            "v": [
+              4,
+              7,
+              3,
+              2
+            ]
+          }
+        },
+        "dft_spectral": {
+          "p_value": 0.509529660595049,
+          "detail": {
+            "T": 110.77237648654626,
+            "n0_expected": 1945.6,
+            "n1_observed": 1941.0,
+            "d": -0.659570234877852
+          }
+        },
+        "approx_entropy": {
+          "p_value": 0.8333673371620182,
+          "detail": {
+            "m": 2,
+            "ap_en": 0.6929687253088364,
+            "chi_square": 1.461905417084381
+          }
+        },
+        "cusum_fwd": {
+          "p_value": 0.9839130710089963,
+          "detail": {
+            "mode": 0,
+            "z": 34.0
+          }
+        },
+        "cusum_bwd": {
+          "p_value": 0.9615311880552684,
+          "detail": {
+            "mode": 1,
+            "z": 38.0
+          }
+        },
+        "serial": {
+          "p_value": 0.8362824876950091,
+          "detail": {
+            "m": 3,
+            "psi2_m": 2.71875,
+            "del1": 1.4453125,
+            "del2": 0.17578125,
+            "p_value2": 0.9158610435469906
+          }
+        }
+      },
+      "nist_pass_fail": {
+        "monobit": true,
+        "block_frequency": true,
+        "runs": true,
+        "longest_run": true,
+        "dft_spectral": true,
+        "approx_entropy": true,
+        "cusum_fwd": true,
+        "cusum_bwd": true,
+        "serial": true
+      },
+      "autocorr_max_abs": 0.03418068029081134
+    },
+    "raw_lsb__drift__carry_16_warm": {
+      "name": "raw_lsb__drift__carry_16_warm",
+      "n_bits": 4096,
+      "p_one": 0.489013671875,
+      "shannon_bit": 0.9996517071030144,
+      "min_entropy_bit": 0.9686434037442908,
+      "ent": {
+        "n_bytes": 512,
+        "entropy_bits_per_byte": 7.6149031634564235,
+        "entropy_bits_per_bit": 0.9518628954320529,
+        "chi_square": 249.0,
+        "chi_square_p": 0.5941420654502769,
+        "arithmetic_mean": 126.3125,
+        "monte_carlo_pi": 3.4823529411764707,
+        "monte_carlo_pi_error_pct": 10.84673683576711,
+        "serial_correlation": -0.001819921699012681,
+        "optimum_compression_pct": 4.813710456794706
+      },
+      "ent_ideal_at_n": {
+        "mean": 7.5854359005814835,
+        "std": 0.03430947617124794,
+        "note": "oczekiwana entropia bajtowa idealnego CSPRNG dla tej liczby bajtów"
+      },
+      "nist": {
+        "monobit": {
+          "p_value": 0.1596499016428105,
+          "detail": {
+            "n": 4096,
+            "sum": -90.0,
+            "s_obs": 1.40625
+          }
+        },
+        "block_frequency": {
+          "p_value": 0.046098831398075454,
+          "detail": {
+            "M": 128,
+            "N": 32,
+            "chi_square": 46.59375
+          }
+        },
+        "runs": {
+          "p_value": 0.8264889706115595,
+          "detail": {
+            "pi": 0.489013671875,
+            "runs": 2040
+          }
+        },
+        "longest_run": {
+          "p_value": 0.008446824219309345,
+          "detail": {
+            "M": 8,
+            "blocks": 16,
+            "chi_square": 11.7096793328458,
+            "v": [
+              9,
+              4,
+              2,
+              1
+            ]
+          }
+        },
+        "dft_spectral": {
+          "p_value": 0.5281103137917112,
+          "detail": {
+            "T": 110.77237648654626,
+            "n0_expected": 1945.6,
+            "n1_observed": 1950.0,
+            "d": 0.6308932681440579
+          }
+        },
+        "approx_entropy": {
+          "p_value": 0.06785945827145466,
+          "detail": {
+            "m": 2,
+            "ap_en": 0.6920799427064104,
+            "chi_square": 8.742812496157967
+          }
+        },
+        "cusum_fwd": {
+          "p_value": 0.16570274386705242,
+          "detail": {
+            "mode": 0,
+            "z": 111.0
+          }
+        },
+        "cusum_bwd": {
+          "p_value": 0.2923520150590805,
+          "detail": {
+            "mode": 1,
+            "z": 93.0
+          }
+        },
+        "serial": {
+          "p_value": 0.06869047433124367,
+          "detail": {
+            "m": 3,
+            "psi2_m": 12.73046875,
+            "del1": 8.712890625,
+            "del2": 6.6728515625,
+            "p_value2": 0.03556384378452155
+          }
+        }
+      },
+      "nist_pass_fail": {
+        "monobit": true,
+        "block_frequency": true,
+        "runs": true,
+        "longest_run": false,
+        "dft_spectral": true,
+        "approx_entropy": true,
+        "cusum_fwd": true,
+        "cusum_bwd": true,
+        "serial": true
+      },
+      "autocorr_max_abs": 0.03272516243085652
+    },
+    "raw_lsb__drift__carry_16_warm_longer": {
+      "name": "raw_lsb__drift__carry_16_warm_longer",
+      "n_bits": 4096,
+      "p_one": 0.500732421875,
+      "shannon_bit": 0.9999984521555887,
+      "min_entropy_bit": 0.997888223520148,
+      "ent": {
+        "n_bytes": 512,
+        "entropy_bits_per_byte": 7.611236733724471,
+        "entropy_bits_per_bit": 0.9514045917155589,
+        "chi_square": 237.0,
+        "chi_square_p": 0.7843345964278099,
+        "arithmetic_mean": 125.94140625,
+        "monte_carlo_pi": 3.2470588235294118,
+        "monte_carlo_pi_error_pct": 3.357092454972034,
+        "serial_correlation": -0.09990120817518938,
+        "optimum_compression_pct": 4.859540828444109
+      },
+      "ent_ideal_at_n": {
+        "mean": 7.5854359005814835,
+        "std": 0.03430947617124794,
+        "note": "oczekiwana entropia bajtowa idealnego CSPRNG dla tej liczby bajtów"
+      },
+      "nist": {
+        "monobit": {
+          "p_value": 0.9253077508893466,
+          "detail": {
+            "n": 4096,
+            "sum": 6.0,
+            "s_obs": 0.09375
+          }
+        },
+        "block_frequency": {
+          "p_value": 0.6016607336459954,
+          "detail": {
+            "M": 128,
+            "N": 32,
+            "chi_square": 29.34375
+          }
+        },
+        "runs": {
+          "p_value": 0.6171710231056119,
+          "detail": {
+            "pi": 0.500732421875,
+            "runs": 2032
+          }
+        },
+        "longest_run": {
+          "p_value": 0.6751060418660046,
+          "detail": {
+            "M": 8,
+            "blocks": 16,
+            "chi_square": 1.5311228613593737,
+            "v": [
+              2,
+              5,
+              5,
+              4
+            ]
+          }
+        },
+        "dft_spectral": {
+          "p_value": 0.9314418534713054,
+          "detail": {
+            "T": 110.77237648654626,
+            "n0_expected": 1945.6,
+            "n1_observed": 1945.0,
+            "d": -0.08603090020144763
+          }
+        },
+        "approx_entropy": {
+          "p_value": 0.8654829108193142,
+          "detail": {
+            "m": 2,
+            "ap_en": 0.6929914541736621,
+            "chi_square": 1.275710556431477
+          }
+        },
+        "cusum_fwd": {
+          "p_value": 0.8579648838592456,
+          "detail": {
+            "mode": 0,
+            "z": 48.0
+          }
+        },
+        "cusum_bwd": {
+          "p_value": 0.7749360055046366,
+          "detail": {
+            "mode": 1,
+            "z": 54.0
+          }
+        },
+        "serial": {
+          "p_value": 0.8668518727773664,
+          "detail": {
+            "m": 3,
+            "psi2_m": 1.53515625,
+            "del1": 1.267578125,
+            "del2": 1.0087890625,
+            "p_value2": 0.6038710898360224
+          }
+        }
+      },
+      "nist_pass_fail": {
+        "monobit": true,
+        "block_frequency": true,
+        "runs": true,
+        "longest_run": true,
+        "dft_spectral": true,
+        "approx_entropy": true,
+        "cusum_fwd": true,
+        "cusum_bwd": true,
+        "serial": true
+      },
+      "autocorr_max_abs": 0.043698397808343684
+    },
+    "pool_good_raw": {
+      "name": "pool_good_raw",
+      "n_bits": 20480,
+      "p_one": 0.49365234375,
+      "shannon_bit": 0.9998837366048522,
+      "min_entropy_bit": 0.9817998211867743,
+      "ent": {
+        "n_bytes": 2560,
+        "entropy_bits_per_byte": 7.919352277950065,
+        "entropy_bits_per_bit": 0.9899190347437581,
+        "chi_square": 275.2,
+        "chi_square_p": 0.1837348851858126,
+        "arithmetic_mean": 124.701953125,
+        "monte_carlo_pi": 3.1173708920187795,
+        "monte_carlo_pi_error_pct": 0.7710026168840265,
+        "serial_correlation": 0.018551466957520798,
+        "optimum_compression_pct": 1.0080965256241914
+      },
+      "ent_ideal_at_n": {
+        "mean": 7.925065370948761,
+        "std": 0.005638998489837158,
+        "note": "oczekiwana entropia bajtowa idealnego CSPRNG dla tej liczby bajtów"
+      },
+      "nist": {
+        "monobit": {
+          "p_value": 0.06924694146788374,
+          "detail": {
+            "n": 20480,
+            "sum": -260.0,
+            "s_obs": 1.816805231718579
+          }
+        },
+        "block_frequency": {
+          "p_value": 2.827822698923438e-16,
+          "detail": {
+            "M": 128,
+            "N": 160,
+            "chi_square": 350.4375
+          }
+        },
+        "runs": {
+          "p_value": 0.04510278167484872,
+          "detail": {
+            "pi": 0.49365234375,
+            "runs": 10095
+          }
+        },
+        "longest_run": {
+          "p_value": 0.046085545066695585,
+          "detail": {
+            "M": 128,
+            "blocks": 160,
+            "chi_square": 11.28094763528388,
+            "v": [
+              17,
+              33,
+              29,
+              34,
+              19,
+              28
+            ]
+          }
+        },
+        "dft_spectral": {
+          "p_value": 1.0,
+          "detail": {
+            "T": 247.69456385311676,
+            "n0_expected": 9728.0,
+            "n1_observed": 9728.0,
+            "d": 0.0
+          }
+        },
+        "approx_entropy": {
+          "p_value": 1.9477688581541727e-05,
+          "detail": {
+            "m": 2,
+            "ap_en": 0.6924869316006095,
+            "chi_square": 27.04379737439467
+          }
+        },
+        "cusum_fwd": {
+          "p_value": 0.0913280415292812,
+          "detail": {
+            "mode": 0,
+            "z": 286.0
+          }
+        },
+        "cusum_bwd": {
+          "p_value": 0.09916524530938842,
+          "detail": {
+            "mode": 1,
+            "z": 281.0
+          }
+        },
+        "serial": {
+          "p_value": 1.3757842485073011e-05,
+          "detail": {
+            "m": 3,
+            "psi2_m": 38.5546875,
+            "del1": 27.78984374999709,
+            "del2": 20.32578124999418,
+            "p_value2": 3.8575599256399924e-05
+          }
+        }
+      },
+      "nist_pass_fail": {
+        "monobit": true,
+        "block_frequency": false,
+        "runs": true,
+        "longest_run": true,
+        "dft_spectral": true,
+        "approx_entropy": false,
+        "cusum_fwd": true,
+        "cusum_bwd": true,
+        "serial": false
+      },
+      "autocorr_max_abs": 0.03729598833672479
+    },
+    "pool_all_raw": {
+      "name": "pool_all_raw",
+      "n_bits": 28672,
+      "p_one": 0.5120326450892857,
+      "shannon_bit": 0.9995821997688581,
+      "min_entropy_bit": 0.9656923014452167,
+      "ent": {
+        "n_bytes": 3584,
+        "entropy_bits_per_byte": 7.465547828323398,
+        "entropy_bits_per_bit": 0.9331934785404248,
+        "chi_square": 6175.285714285714,
+        "chi_square_p": 0.0,
+        "arithmetic_mean": 131.01060267857142,
+        "monte_carlo_pi": 2.9078726968174204,
+        "monte_carlo_pi_error_pct": 7.439537283909442,
+        "serial_correlation": 0.23742897436371038,
+        "optimum_compression_pct": 6.680652145957522
+      },
+      "ent_ideal_at_n": {
+        "mean": 7.947145841082641,
+        "std": 0.004686230395902769,
+        "note": "oczekiwana entropia bajtowa idealnego CSPRNG dla tej liczby bajtów"
+      },
+      "nist": {
+        "monobit": {
+          "p_value": 4.602829410146778e-05,
+          "detail": {
+            "n": 28672,
+            "sum": 690.0,
+            "s_obs": 4.074929474630731
+          }
+        },
+        "block_frequency": {
+          "p_value": 0.0,
+          "detail": {
+            "M": 128,
+            "N": 224,
+            "chi_square": 3022.71875
+          }
+        },
+        "runs": {
+          "p_value": 0.0,
+          "detail": {
+            "pi": 0.5120326450892857,
+            "precondition_failed": true
+          }
+        },
+        "longest_run": {
+          "p_value": 5.2744556074463875e-18,
+          "detail": {
+            "M": 128,
+            "blocks": 224,
+            "chi_square": 90.50049526556656,
+            "v": [
+              49,
+              33,
+              29,
+              34,
+              19,
+              60
+            ]
+          }
+        },
+        "dft_spectral": {
+          "p_value": 2.0441070491627277e-48,
+          "detail": {
+            "T": 293.0761603190202,
+            "n0_expected": 13619.199999999999,
+            "n1_observed": 13889.0,
+            "d": 14.621641861100532
+          }
+        },
+        "approx_entropy": {
+          "p_value": 6.20399678380924e-132,
+          "detail": {
+            "m": 2,
+            "ap_en": 0.6824102633348246,
+            "chi_square": 615.6977813573221
+          }
+        },
+        "cusum_fwd": {
+          "p_value": 0.0,
+          "detail": {
+            "mode": 0,
+            "z": 2555.0
+          }
+        },
+        "cusum_bwd": {
+          "p_value": 0.0,
+          "detail": {
+            "mode": 1,
+            "z": 1865.0
+          }
+        },
+        "serial": {
+          "p_value": 7.634813626317665e-139,
+          "detail": {
+            "m": 3,
+            "psi2_m": 753.1512276785688,
+            "del1": 647.6196986607138,
+            "del2": 558.6932198660725,
+            "p_value2": 4.8007464307840337e-122
+          }
+        }
+      },
+      "nist_pass_fail": {
+        "monobit": false,
+        "block_frequency": false,
+        "runs": false,
+        "longest_run": false,
+        "dft_spectral": false,
+        "approx_entropy": false,
+        "cusum_fwd": false,
+        "cusum_bwd": false,
+        "serial": false
+      },
+      "autocorr_max_abs": 0.2198868050213536
+    },
+    "xor_combine_good": {
+      "name": "xor_combine_good",
+      "n_bits": 4096,
+      "p_one": 0.5048828125,
+      "shannon_bit": 0.999931205846177,
+      "min_entropy_bit": 0.9859795296850654,
+      "ent": {
+        "n_bytes": 512,
+        "entropy_bits_per_byte": 7.584036203516309,
+        "entropy_bits_per_bit": 0.9480045254395386,
+        "chi_square": 257.0,
+        "chi_square_p": 0.45309807821880466,
+        "arithmetic_mean": 130.384765625,
+        "monte_carlo_pi": 3.388235294117647,
+        "monte_carlo_pi_error_pct": 7.850879083449078,
+        "serial_correlation": -0.061767470129631546,
+        "optimum_compression_pct": 5.1995474560461385
+      },
+      "ent_ideal_at_n": {
+        "mean": 7.5854359005814835,
+        "std": 0.03430947617124794,
+        "note": "oczekiwana entropia bajtowa idealnego CSPRNG dla tej liczby bajtów"
+      },
+      "nist": {
+        "monobit": {
+          "p_value": 0.5319710580974011,
+          "detail": {
+            "n": 4096,
+            "sum": 40.0,
+            "s_obs": 0.625
+          }
+        },
+        "block_frequency": {
+          "p_value": 0.7580508456453086,
+          "detail": {
+            "M": 128,
+            "N": 32,
+            "chi_square": 26.125
+          }
+        },
+        "runs": {
+          "p_value": 0.23258854842878118,
+          "detail": {
+            "pi": 0.5048828125,
+            "runs": 2086
+          }
+        },
+        "longest_run": {
+          "p_value": 0.5126298393653277,
+          "detail": {
+            "M": 8,
+            "blocks": 16,
+            "chi_square": 2.299431426250259,
+            "v": [
+              4,
+              3,
+              5,
+              4
+            ]
+          }
+        },
+        "dft_spectral": {
+          "p_value": 0.2175348876384369,
+          "detail": {
+            "T": 110.77237648654626,
+            "n0_expected": 1945.6,
+            "n1_observed": 1937.0,
+            "d": -1.2331095695542564
+          }
+        },
+        "approx_entropy": {
+          "p_value": 0.7332690214681963,
+          "detail": {
+            "m": 2,
+            "ap_en": 0.6929013875435708,
+            "chi_square": 2.0135363901399614
+          }
+        },
+        "cusum_fwd": {
+          "p_value": 0.5869430432742457,
+          "detail": {
+            "mode": 0,
+            "z": 67.0
+          }
+        },
+        "cusum_bwd": {
+          "p_value": 0.6008948225808148,
+          "detail": {
+            "mode": 1,
+            "z": 66.0
+          }
+        },
+        "serial": {
+          "p_value": 0.736477396419157,
+          "detail": {
+            "m": 3,
+            "psi2_m": 4.1875,
+            "del1": 1.99609375,
+            "del2": 0.1953125,
+            "p_value2": 0.9069606178873836
+          }
+        }
+      },
+      "nist_pass_fail": {
+        "monobit": true,
+        "block_frequency": true,
+        "runs": true,
+        "longest_run": true,
+        "dft_spectral": true,
+        "approx_entropy": true,
+        "cusum_fwd": true,
+        "cusum_bwd": true,
+        "serial": true
+      },
+      "autocorr_max_abs": 0.04212060025843462
+    },
+    "vn_pool_good": {
+      "name": "vn_pool_good",
+      "n_bits": 5084,
+      "p_one": 0.5108182533438238,
+      "shannon_bit": 0.999662283157738,
+      "min_entropy_bit": 0.9691180163265514,
+      "ent": {
+        "n_bytes": 635,
+        "entropy_bits_per_byte": 7.644219595887736,
+        "entropy_bits_per_bit": 0.955527449485967,
+        "chi_square": 276.52125984251967,
+        "chi_square_p": 0.169349547711115,
+        "arithmetic_mean": 131.83307086614172,
+        "monte_carlo_pi": 2.857142857142857,
+        "monte_carlo_pi_error_pct": 9.05431823320266,
+        "serial_correlation": -0.06285274067743062,
+        "optimum_compression_pct": 4.447255051403298
+      },
+      "ent_ideal_at_n": {
+        "mean": 7.6743451927143,
+        "std": 0.025244664592521053,
+        "note": "oczekiwana entropia bajtowa idealnego CSPRNG dla tej liczby bajtów"
+      },
+      "nist": {
+        "monobit": {
+          "p_value": 0.12289630900710555,
+          "detail": {
+            "n": 5084,
+            "sum": 110.0,
+            "s_obs": 1.5427299619963395
+          }
+        },
+        "block_frequency": {
+          "p_value": 0.8914944271749478,
+          "detail": {
+            "M": 128,
+            "N": 39,
+            "chi_square": 28.53125
+          }
+        },
+        "runs": {
+          "p_value": 0.4688816085085511,
+          "detail": {
+            "pi": 0.5108182533438238,
+            "runs": 2515
+          }
+        },
+        "longest_run": {
+          "p_value": 0.17843200168629453,
+          "detail": {
+            "M": 8,
+            "blocks": 16,
+            "chi_square": 4.910991740701903,
+            "v": [
+              2,
+              6,
+              7,
+              1
+            ]
+          }
+        },
+        "dft_spectral": {
+          "p_value": 0.1531260899729478,
+          "detail": {
+            "T": 123.41111327084157,
+            "n0_expected": 2414.9,
+            "n1_observed": 2426.0,
+            "d": 1.4285761610872554
+          }
+        },
+        "approx_entropy": {
+          "p_value": 0.23778053941763205,
+          "detail": {
+            "m": 2,
+            "ap_en": 0.6926040795884911,
+            "chi_square": 5.522250677745878
+          }
+        },
+        "cusum_fwd": {
+          "p_value": 0.23905141816469477,
+          "detail": {
+            "mode": 0,
+            "z": 111.0
+          }
+        },
+        "cusum_bwd": {
+          "p_value": 0.04450321621463482,
+          "detail": {
+            "mode": 1,
+            "z": 163.0
+          }
+        },
+        "serial": {
+          "p_value": 0.2436646721811051,
+          "detail": {
+            "m": 3,
+            "psi2_m": 10.832415420928555,
+            "del1": 5.455546813533147,
+            "del2": 2.4586939417786198,
+            "p_value2": 0.29248351558014146
+          }
+        }
+      },
+      "nist_pass_fail": {
+        "monobit": true,
+        "block_frequency": true,
+        "runs": true,
+        "longest_run": true,
+        "dft_spectral": true,
+        "approx_entropy": true,
+        "cusum_fwd": true,
+        "cusum_bwd": true,
+        "serial": true
+      },
+      "autocorr_max_abs": 0.03156968876056669
+    },
+    "vn_xor_good": {
+      "name": "vn_xor_good",
+      "n_bits": 1038,
+      "p_one": 0.5154142581888247,
+      "shannon_bit": 0.9993143245413755,
+      "min_entropy_bit": 0.9561956470693714,
+      "ent": {
+        "n_bytes": 129,
+        "entropy_bits_per_byte": 6.482043825140382,
+        "entropy_bits_per_bit": 0.8102554781425477,
+        "chi_square": 269.8837209302326,
+        "chi_square_p": 0.24950623877349434,
+        "arithmetic_mean": 137.8294573643411,
+        "monte_carlo_pi": 3.238095238095238,
+        "monte_carlo_pi_error_pct": 3.0717726690369846,
+        "serial_correlation": -0.1017317356526443,
+        "optimum_compression_pct": 18.97445218574523
+      },
+      "ent_ideal_at_n": {
+        "mean": 6.557648408543977,
+        "std": 0.05915766836317884,
+        "note": "oczekiwana entropia bajtowa idealnego CSPRNG dla tej liczby bajtów"
+      },
+      "nist": {
+        "monobit": {
+          "p_value": 0.32059624047131696,
+          "detail": {
+            "n": 1038,
+            "sum": 32.0,
+            "s_obs": 0.9932333683907213
+          }
+        },
+        "block_frequency": {
+          "p_value": 0.5487175825131633,
+          "detail": {
+            "M": 51,
+            "N": 20,
+            "chi_square": 18.588235294117652
+          }
+        },
+        "runs": {
+          "p_value": 0.36737937357671013,
+          "detail": {
+            "pi": 0.5154142581888247,
+            "runs": 504
+          }
+        },
+        "longest_run": {
+          "p_value": 0.8768790942601203,
+          "detail": {
+            "M": 8,
+            "blocks": 16,
+            "chi_square": 0.6843481791649701,
+            "v": [
+              4,
+              5,
+              3,
+              4
+            ]
+          }
+        },
+        "dft_spectral": {
+          "p_value": 0.1585678680839804,
+          "detail": {
+            "T": 55.763519436537024,
+            "n0_expected": 493.04999999999995,
+            "n1_observed": 498.0,
+            "d": 1.4099045530809284
+          }
+        },
+        "approx_entropy": {
+          "p_value": 0.7119885450066643,
+          "detail": {
+            "m": 2,
+            "ap_en": 0.6921214983829223,
+            "chi_square": 2.129316199499821
+          }
+        },
+        "cusum_fwd": {
+          "p_value": 0.34398519901569413,
+          "detail": {
+            "mode": 0,
+            "z": 44.0
+          }
+        },
+        "cusum_bwd": {
+          "p_value": 0.5794752410483743,
+          "detail": {
+            "mode": 1,
+            "z": 34.0
+          }
+        },
+        "serial": {
+          "p_value": 0.6827693331714102,
+          "detail": {
+            "m": 3,
+            "psi2_m": 5.129094412331369,
+            "del1": 2.289017341040335,
+            "del2": 0.4354527938339743,
+            "p_value2": 0.8043454829671451
+          }
+        }
+      },
+      "nist_pass_fail": {
+        "monobit": true,
+        "block_frequency": true,
+        "runs": true,
+        "longest_run": true,
+        "dft_spectral": true,
+        "approx_entropy": true,
+        "cusum_fwd": true,
+        "cusum_bwd": true,
+        "serial": true
+      },
+      "autocorr_max_abs": 0.07423536500550836
+    },
+    "xorw_pool_good": {
+      "name": "xorw_pool_good",
+      "n_bits": 10240,
+      "p_one": 0.496484375,
+      "shannon_bit": 0.9999643373836629,
+      "min_entropy_bit": 0.9898915465257113,
+      "ent": {
+        "n_bytes": 1280,
+        "entropy_bits_per_byte": 7.873812116436994,
+        "entropy_bits_per_bit": 0.9842265145546243,
+        "chi_square": 214.4,
+        "chi_square_p": 0.9694831369762478,
+        "arithmetic_mean": 128.4140625,
+        "monte_carlo_pi": 3.267605633802817,
+        "monte_carlo_pi_error_pct": 4.01111773892879,
+        "serial_correlation": -0.0053880230755759964,
+        "optimum_compression_pct": 1.5773485445375712
+      },
+      "ent_ideal_at_n": {
+        "mean": 7.845722732759995,
+        "std": 0.012194413638632011,
+        "note": "oczekiwana entropia bajtowa idealnego CSPRNG dla tej liczby bajtów"
+      },
+      "nist": {
+        "monobit": {
+          "p_value": 0.4767667239985801,
+          "detail": {
+            "n": 10240,
+            "sum": -72.0,
+            "s_obs": 0.7115124735378853
+          }
+        },
+        "block_frequency": {
+          "p_value": 0.08781932025304565,
+          "detail": {
+            "M": 128,
+            "N": 80,
+            "chi_square": 97.625
+          }
+        },
+        "runs": {
+          "p_value": 0.8086363371038516,
+          "detail": {
+            "pi": 0.496484375,
+            "runs": 5132
+          }
+        },
+        "longest_run": {
+          "p_value": 0.2657194158538754,
+          "detail": {
+            "M": 128,
+            "blocks": 80,
+            "chi_square": 6.440085691470934,
+            "v": [
+              5,
+              26,
+              19,
+              16,
+              9,
+              5
+            ]
+          }
+        },
+        "dft_spectral": {
+          "p_value": 0.46815990985442807,
+          "detail": {
+            "T": 175.14650576358315,
+            "n0_expected": 4864.0,
+            "n1_observed": 4872.0,
+            "d": 0.7254762501100116
+          }
+        },
+        "approx_entropy": {
+          "p_value": 0.29019983134372473,
+          "detail": {
+            "m": 2,
+            "ap_en": 0.6929044152748851,
+            "chi_square": 4.9718330380324005
+          }
+        },
+        "cusum_fwd": {
+          "p_value": 0.3329590210350202,
+          "detail": {
+            "mode": 0,
+            "z": 140.0
+          }
+        },
+        "cusum_bwd": {
+          "p_value": 0.5102395460121514,
+          "detail": {
+            "mode": 1,
+            "z": 115.0
+          }
+        },
+        "serial": {
+          "p_value": 0.28954938059440716,
+          "detail": {
+            "m": 3,
+            "psi2_m": 6.046875,
+            "del1": 4.978124999999636,
+            "del2": 4.415624999999636,
+            "p_value2": 0.1099408813430182
+          }
+        }
+      },
+      "nist_pass_fail": {
+        "monobit": true,
+        "block_frequency": true,
+        "runs": true,
+        "longest_run": true,
+        "dft_spectral": true,
+        "approx_entropy": true,
+        "cusum_fwd": true,
+        "cusum_bwd": true,
+        "serial": true
+      },
+      "autocorr_max_abs": 0.020849923596419562
+    }
+  },
+  "headline_stream": "xorw_pool_good"
+}

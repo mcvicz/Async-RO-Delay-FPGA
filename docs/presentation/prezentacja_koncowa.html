@@ -640,6 +640,51 @@ ul.dash li::before{content:"—";position:absolute;left:0;color:var(--text-mute)
   <div class="num">29</div>
 </section>
 
+<!-- TRNG 1 — ŹRÓDŁO ENTROPII -->
+<section class="slide">
+  <div class="tag">Bonus · TRNG</div>
+  <h2>TRNG z jitteru ringu — źródło entropii</h2>
+  <div class="content"><div class="two">
+    <div class="figbox">
+      <img src="figures/trng_bit_bias.png" class="shot light" alt="bias bitów freq_count wg pozycji">
+      <div class="figcap">Polaryzacja bitów <code>freq_count</code> wg pozycji. Tylko <strong>LSB (bit0)</strong> jest blisko 0.5 — starsze bity kodują wartość średnią f i są spolaryzowane (≈0 lub 1). Entropia siedzi w jednym bicie.</div>
+    </div>
+    <div>
+      <p>Jitter ringu (slajdy 26–28) to fizyczny szum termiczny. Najmłodszy bit <code>freq_count</code> z każdego okna 1 ms = surowy bit losowy. 10 źródeł × 4096 próbek — <strong>te same dane co pomiary jitteru</strong>, zero nowego HW.</p>
+      <ul class="dash" style="margin-top:.8rem;">
+        <li>carry_16/32/48/64, lut: <strong>P(1) ≈ 0.49–0.50</strong> — brak biasu I rzędu</li>
+        <li><strong>loop</strong> (P(1)=0.83) i <strong>sync</strong> (0.28) <strong>odrzucone</strong> — za mały jitter (1–2 LSB)</li>
+      </ul>
+      <div class="note" style="margin-top:.9rem;"><strong>Uczciwie:</strong> brak biasu (monobit OK) to nie wszystko. Surowe LSB mają resztkową <strong>korelację strukturalną</strong> — werdykt NIST na następnym slajdzie.</div>
+    </div>
+  </div></div>
+  <div class="num">30</div>
+</section>
+
+<!-- TRNG 2 — NIST + WERDYKT -->
+<section class="slide">
+  <div class="tag">Bonus · TRNG · NIST STS</div>
+  <h2>Testy NIST i uczciwy werdykt</h2>
+  <div class="content"><div class="two">
+    <div class="figbox">
+      <img src="figures/trng_nist_heatmap.png" class="shot light" alt="heatmapa p-value NIST">
+      <div class="figcap">Heatmapa p-value NIST (9 testów). Zielony PASS (p≥0.01), czerwony FAIL. Surowe <code>carry_64</code> oblewa block_frequency / approx_entropy / serial; post-processing (XOR, von Neumann) = same zielone.</div>
+    </div>
+    <div>
+      <table>
+        <tr><th>strumień</th><th>n [bit]</th><th>NIST</th><th>uwaga</th></tr>
+        <tr><td>surowe LSB carry_64</td><td>4096</td><td><strong style="color:var(--accent-bad)">5/9</strong></td><td>korelacja strukturalna</td></tr>
+        <tr><td>surowe LSB carry_16/lut</td><td>4096</td><td>9/9</td><td>bez post-proc</td></tr>
+        <tr><td>XOR-combine (good)</td><td>4096</td><td><strong style="color:var(--accent-good)">9/9</strong></td><td>dekorelacja RO</td></tr>
+        <tr><td>von Neumann (vn_pool)</td><td>5084</td><td><strong style="color:var(--accent-good)">9/9</strong></td><td>dowodliwie bez biasu</td></tr>
+        <tr><td>xorw_pool ⭐</td><td>10240</td><td><strong style="color:var(--accent-good)">9/9</strong></td><td>najwięcej PASS @ przepływności</td></tr>
+      </table>
+      <div class="note" style="margin-top:.9rem;"><strong>Werdykt (uczciwie):</strong> surowy LSB nie wystarcza — słabość jest <strong>strukturalna</strong> (korelacja krótkozasięgowa), nie biasowa. <strong>XOR-combine + von Neumann → 9/9.</strong> ALE strumienie 1k–28k bitów « NIST STS (~10⁶/strumień) → <strong>p-value orientacyjne, nie rozstrzygające</strong>. Produkcyjnie: dłuższa akwizycja (AXI/UART zamiast bufora ILA) + conditioner (hash).</div>
+    </div>
+  </div></div>
+  <div class="num">31</div>
+</section>
+
 <!-- 21 TABELA PORÓWNAWCZA koncepcyjna -->
 <section class="slide">
   <div class="tag">17 · Wynik główny</div>
@@ -659,7 +704,7 @@ ul.dash li::before{content:"—";position:absolute;left:0;color:var(--text-mute)
       </tbody>
     </table>
   </div>
-  <div class="num">30</div>
+  <div class="num">32</div>
 </section>
 
 <!-- 22 WNIOSKI -->
@@ -681,7 +726,7 @@ ul.dash li::before{content:"—";position:absolute;left:0;color:var(--text-mute)
       <li>Walka z syntezatorem jest sama w sobie wartością — pokazuje granice toolchainu</li>
     </ul></div>
   </div></div>
-  <div class="num">31</div>
+  <div class="num">33</div>
 </section>
 
 <!-- 23 FIN -->
@@ -694,7 +739,7 @@ ul.dash li::before{content:"—";position:absolute;left:0;color:var(--text-mute)
     <div><div style="color:var(--accent);font-size:.7rem;text-transform:uppercase;letter-spacing:.2em;margin-bottom:.3rem;">Platforma</div>Xilinx Zynq-7010 · Zybo Z7-10</div>
     <div><div style="color:var(--accent);font-size:.7rem;text-transform:uppercase;letter-spacing:.2em;margin-bottom:.3rem;">Toolchain</div>Vivado 2018.3 · ILA · matplotlib</div>
   </div>
-  <div class="num">32</div>
+  <div class="num">34</div>
 </section>
 
 </div>

@@ -363,12 +363,56 @@ ul.dash li::before{content:"—";position:absolute;left:0;color:var(--text-mute)
 <!-- BLOCK DESIGN (F5) -->
 <section class="slide">
   <div class="tag">F5 · Block Design</div>
-  <h2>Ścieżka AXI4-Lite + ARM — zaprojektowana</h2>
+  <h2>Ścieżka AXI4-Lite + ARM — od projektu do krzemu</h2>
   <div class="content figbox">
     <img src="figures/block_design.png" class="shot" style="max-height:52vh;background:#fff;" alt="Block Design AXI">
-    <div class="figcap"><strong style="color:var(--accent)">ZYNQ7 PS + AXI Interconnect + osc_axi_system</strong> — alternatywny tor odczytu: ring i licznik (custom IP <code>osc_axi_system</code>, slave AXI4-Lite, adres 0x43C00000) → AXI → ARM Cortex-A9 → UART → PC; bare-metal C czyta freq. <code>pmod_in/out</code> wyprowadzone na piny (loopback), DDR/FIXED_IO do PS. Bitstream wygenerowany (ZedBoard, 0 errors). W finale użyliśmy ILA — prościej i bez PS.</div>
+    <div class="figcap"><strong style="color:var(--accent)">ZYNQ7 PS + AXI Interconnect + osc_axi_system</strong> — drugi tor odczytu: ring i licznik (custom IP <code>osc_axi_system</code>, slave AXI4-Lite, adres 0x43C00000) → AXI → ARM Cortex-A9; bare-metal C czyta i steruje. <code>pmod_in/out</code> na piny (loopback), DDR/FIXED_IO do PS. Pierwszy bitstream na ZedBoard (0 errors), <strong style="color:var(--accent-good)">finalnie tor PS+PL uruchomiony na Zybo Z7-10</strong> — dowód na kolejnych slajdach. (Kampania pomiarowa f(N)/jitter szła przez ILA — prościej, bez PS.)</div>
   </div>
   <div class="num">12</div>
+</section>
+
+<!-- F5 NA ŻYWO 1 — ARM CZYTA AXI (DOWÓD) -->
+<section class="slide">
+  <div class="tag">F5 na żywo · dowód</div>
+  <h2>ARM czyta i steruje ringiem przez AXI — na Zybo</h2>
+  <div class="content"><div class="two">
+    <div class="figbox">
+      <img src="figures/arm_xsct_proof.png" class="shot light" alt="konsola XSCT — ARM czyta freq_count przez AXI">
+      <div class="figcap">Konsola XSCT: ARM (Cortex-A9, zatrzymany) zapisuje <code>tap</code>/<code>osc_select</code> i czyta <code>freq_count</code> przez AXI. <code>mwr 0x43C0000C</code> = tap, <code>mrd 0x43C00000</code> = odczyt.</div>
+    </div>
+    <div>
+      <p>Procesor PS realnie rozmawia z logiką PL przez magistralę AXI4-Lite. Zmiana rejestru <code>tap</code>/<code>osc_select</code> z ARM <strong>zmienia odczytaną częstotliwość</strong> — pełne sterowanie i pomiar ringu z procesora:</p>
+      <table style="margin-top:.8rem;">
+        <tr><th>ustawienie (z ARM)</th><th>freq_count</th><th>relacja</th></tr>
+        <tr><td>tap=63 (64 stopnie)</td><td>0xA2 = 162</td><td>długi ring → <strong>najniższa f</strong></td></tr>
+        <tr><td>tap=15 (16 stopni)</td><td>0x123 = 291</td><td>krótki ring → <strong>najwyższa f</strong></td></tr>
+        <tr><td>osc_select = LUT</td><td>0x117 = 279</td><td>inny wariant ringu</td></tr>
+      </table>
+      <div class="note" style="margin-top:.9rem;"><strong>Uczciwie:</strong> to <strong>inny build</strong> niż kampania ILA (inny placement/zegar, dzielnik ×256) — dlatego pokazujemy <strong>relację</strong> (krótszy ring = wyższa f, ARM steruje), a <strong>nie</strong> zestawiamy tych liczb z f(N) z ILA (134 MHz). Odczyt przez konsolę debuggera XSCT (standard bring-up); UART pominięty (glitch sprzętowy, nie był warunkiem) — pełny tor PS+PL działa.</div>
+    </div>
+  </div></div>
+  <div class="num">13</div>
+</section>
+
+<!-- F5 NA ŻYWO 2 — TOR PS+PL NA ZYBO -->
+<section class="slide">
+  <div class="tag">F5 na żywo · tor PS+PL</div>
+  <h2>Tor PS+PL na Zybo — Block Design, adres, krzem</h2>
+  <div class="content"><div class="three" style="align-items:start;">
+    <div class="figbox">
+      <img src="figures/arm_bd_zybo.png" class="shot light" style="max-height:46vh;" alt="Block Design Zybo PS7+AXI">
+      <div class="figcap"><strong style="color:var(--accent)">Block Design (Zybo)</strong> — ZYNQ7 PS + AXI Interconnect + <code>osc_axi_system</code> + Processor System Reset. Tor PS → AXI → PL.</div>
+    </div>
+    <div class="figbox">
+      <img src="figures/arm_address_editor.png" class="shot light" style="max-height:46vh;" alt="Address Editor 0x43C00000">
+      <div class="figcap"><strong style="color:var(--accent)">Address Editor</strong> — <code>osc_axi_system_0/s00_axi</code> @ <strong>0x43C0_0000</strong>, zakres 64K. Ten sam adres co w komendach <code>mrd</code>/<code>mwr</code>.</div>
+    </div>
+    <div class="figbox">
+      <img src="figures/arm_zybo_done.jpeg" class="shot tall" style="max-height:46vh;" alt="Zybo DONE LED">
+      <div class="figcap"><strong style="color:var(--accent-good)">Zybo Z7-10 na żywo</strong> — zielony LED DONE (LD10) = bitstream skonfigurowany na krzemie. Fizyczny dowód, że tor działa na realnej płytce.</div>
+    </div>
+  </div></div>
+  <div class="num">14</div>
 </section>
 
 <!-- 12 WALKA Z VIVADO -->
@@ -402,7 +446,7 @@ ul.dash li::before{content:"—";position:absolute;left:0;color:var(--text-mute)
       <div class="note" style="margin-top:1rem;"><strong>Wniosek:</strong> Vivado domyślnie <em>nienawidzi</em> pętli kombinacyjnych — próbuje je usunąć lub zredukować do jednego drutu. Trzeba to wymusić jawnie na każdym poziomie: RTL, XDC, DRC.</div>
     </div>
   </div></div>
-  <div class="num">13</div>
+  <div class="num">15</div>
 </section>
 
 <!-- SECTION: SYMULACJE -->
@@ -410,7 +454,7 @@ ul.dash li::before{content:"—";position:absolute;left:0;color:var(--text-mute)
   <div class="section-num">// 03b</div>
   <h1>Symulacje<br>behawioralne</h1>
   <p class="subtitle" style="margin-top:1.5rem;max-width:64%;">Weryfikacja RTL przed krzemem. Model mock z jawnym <code>#delay</code> — klasyczny RTL pętli kombinacyjnej wiesza XSim (zerowe opóźnienie → oscylacja w delcie czasu).</p>
-  <div class="num">14</div>
+  <div class="num">16</div>
 </section>
 
 <!-- SIM 1 -->
@@ -421,7 +465,7 @@ ul.dash li::before{content:"—";position:absolute;left:0;color:var(--text-mute)
     <img src="figures/sim_ring_mock.png" class="shot dark" style="max-height:58vh;" alt="tb_ring_mock">
     <div class="figcap"><strong style="color:var(--accent)">tb_ring_mock</strong> — <strong>osc_carry</strong> i <strong>osc_lut oscylują</strong>. Zmiana <code>tap_select</code> (3f → 0f → 03 → 1f) zmienia częstotliwość: krótsza pętla = gęstsze zbocza. Dowód działania ringu i strojenia.</div>
   </div>
-  <div class="num">15</div>
+  <div class="num">17</div>
 </section>
 
 <!-- SIM 2 -->
@@ -432,7 +476,7 @@ ul.dash li::before{content:"—";position:absolute;left:0;color:var(--text-mute)
     <img src="figures/sim_freq_wave.png" class="shot dark" style="max-height:58vh;" alt="tb_freq_counter waveform">
     <div class="figcap"><strong style="color:var(--accent)">tb_freq_counter</strong> — <code>freq_count[31:0]</code> aktualizuje się po każdym oknie: 0x0f9 → 0x1c1 → 0x0ca przy zmianie <code>tap_select</code> (3f → 1f → 0f). Wyższa f → wyższy zliczony count. <code>valid</code> stempluje koniec okna.</div>
   </div>
-  <div class="num">16</div>
+  <div class="num">18</div>
 </section>
 
 <!-- SIM 3 -->
@@ -443,7 +487,7 @@ ul.dash li::before{content:"—";position:absolute;left:0;color:var(--text-mute)
     <img src="figures/sim_freq_console.png" class="shot light" style="max-height:42vh;" alt="tb_freq_counter console">
     <div class="figcap"><strong style="color:var(--accent)">tb_freq_counter</strong> — wydruk z konsoli XSim: 25 MHz → <strong>249 zbocz/okno</strong> (oczekiwane 250). Zmiana tap → 249 / 449 / 202. Pokazany też limit Nyquista (tap=15 → aliasing). Licznik działa poprawnie.</div>
   </div>
-  <div class="num">17</div>
+  <div class="num">19</div>
 </section>
 
 <!-- SIM 4 -->
@@ -454,7 +498,7 @@ ul.dash li::before{content:"—";position:absolute;left:0;color:var(--text-mute)
     <img src="figures/sim_presc_wave.png" class="shot dark" style="max-height:58vh;" alt="tb_prescaler full">
     <div class="figcap"><strong style="color:var(--accent)">tb_prescaler_chain</strong> — <code>osc_fast</code> (szybki ring) dzielony /16 (<code>DIV=0x10</code>) na <code>osc_div</code>, dopiero potem licznik. <code>freq_count</code> 0x18f / 0x190 stabilne → odzysk realnej f. Tak omijamy Nyquista.</div>
   </div>
-  <div class="num">18</div>
+  <div class="num">20</div>
 </section>
 
 <!-- SIM 5 -->
@@ -465,7 +509,7 @@ ul.dash li::before{content:"—";position:absolute;left:0;color:var(--text-mute)
     <img src="figures/sim_presc_zoom.png" class="shot dark" style="max-height:58vh;" alt="tb_prescaler zoom">
     <div class="figcap"><strong style="color:var(--accent)">tb_prescaler_chain (zoom)</strong> — gęsty <code>osc_fast</code> (~320 MHz) kontra wolniejszy <code>osc_div</code> po podziale /16. Widać 16 zboczy ringu na 1 zbocze dzielnika — ripple-dzielnik w domenie async.</div>
   </div>
-  <div class="num">19</div>
+  <div class="num">21</div>
 </section>
 
 <!-- SIM 6 -->
@@ -476,7 +520,7 @@ ul.dash li::before{content:"—";position:absolute;left:0;color:var(--text-mute)
     <img src="figures/sim_presc_console.png" class="shot light" style="max-height:52vh;" alt="tb_prescaler console">
     <div class="figcap"><strong style="color:var(--accent)">tb_prescaler_chain</strong> — konsola: freq_count=199 → <strong>REALNA f = 318 MHz</strong> (tap63), 360 → 576 MHz, 400 → <strong>640 MHz</strong> (tap31). Licznik w domenie 100 MHz mierzy ring 640 MHz dzięki /16. <strong>Nyquist pokonany.</strong></div>
   </div>
-  <div class="num">20</div>
+  <div class="num">22</div>
 </section>
 
 <!-- SIM 7 -->
@@ -487,7 +531,7 @@ ul.dash li::before{content:"—";position:absolute;left:0;color:var(--text-mute)
     <img src="figures/sim_sync_wave.png" class="shot dark" style="max-height:58vh;" alt="tb_sync_baseline">
     <div class="figcap"><strong style="color:var(--accent)">tb_sync_baseline</strong> — po <code>enable</code> licznik dzieli zegar, <code>osc_out</code> toggluje regularnie (stały okres). Deterministyczny, bez jitteru — punkt odniesienia dla wariantów async.</div>
   </div>
-  <div class="num">21</div>
+  <div class="num">23</div>
 </section>
 
 <!-- 14 SECTION: WYNIKI -->
@@ -495,7 +539,7 @@ ul.dash li::before{content:"—";position:absolute;left:0;color:var(--text-mute)
   <div class="section-num">// 04</div>
   <h1>Wyniki<br>z krzemu</h1>
   <p class="subtitle" style="margin-top:1.5rem;max-width:62%;">Realne pomiary na Zybo Z7-10 — zero mocków. Każda liczba pochodzi z 4096 okien przez ILA.</p>
-  <div class="num">22</div>
+  <div class="num">24</div>
 </section>
 
 <!-- 15 DEMO HW -->
@@ -519,7 +563,7 @@ ul.dash li::before{content:"—";position:absolute;left:0;color:var(--text-mute)
       <div class="figcap">Zybo Z7-10 na żywo: LD13 DONE (zielona) = bitstream wgrany, LD0–3 świecą (PL działa), zielony kabelek = zworka loopback Pmod JE1↔JE2 (pętla off-chip).</div>
     </div>
   </div></div>
-  <div class="num">23</div>
+  <div class="num">25</div>
 </section>
 
 <!-- ILA CAPTURE -->
@@ -530,7 +574,7 @@ ul.dash li::before{content:"—";position:absolute;left:0;color:var(--text-mute)
     <img src="figures/ila_capture.png" class="shot dark" style="max-height:56vh;" alt="ILA Hardware Manager">
     <div class="figcap">Hardware Manager: rdzeń ILA przechwytuje <code>freq_count</code> przez JTAG z działającego FPGA. Storage qualification (<code>freq_valid==1</code>) — każda próbka to osobne okno 1 ms. 4096 próbek = pełny rozkład → statystyka i jitter. <strong>Tak powstały wszystkie poniższe wyniki.</strong></div>
   </div>
-  <div class="num">24</div>
+  <div class="num">26</div>
 </section>
 
 <!-- 16 EXP_01 f(N) -->
@@ -554,7 +598,7 @@ ul.dash li::before{content:"—";position:absolute;left:0;color:var(--text-mute)
       <div class="note" style="margin-top:.9rem;"><strong>Realne dane z krzemu.</strong> f: 134 → 67 MHz. Jitter rośnie z długością pętli (więcej skumulowanego szumu termicznego).</div>
     </div>
   </div></div>
-  <div class="num">25</div>
+  <div class="num">27</div>
 </section>
 
 <!-- 17 EXP_02 JITTER -->
@@ -576,7 +620,7 @@ ul.dash li::before{content:"—";position:absolute;left:0;color:var(--text-mute)
       <div class="note" style="margin-top:1rem;">Prescaler /16 → 8 poziomów (nie 2) → realny rozkład. Jitter rośnie z N: 129 → 148 ppm (16 → 64 stopni).</div>
     </div>
   </div></div>
-  <div class="num">26</div>
+  <div class="num">28</div>
 </section>
 
 <!-- 18 EXP_03 DRIFT -->
@@ -598,7 +642,7 @@ ul.dash li::before{content:"—";position:absolute;left:0;color:var(--text-mute)
       <p style="margin-top:1rem;">Wyraźny f(T) wymagałby wymuszonego grzania (opalarka / workload). Mechanizm działa — RO to czujnik temperatury — ale przy tym obciążeniu efekt jest na granicy szumu. <strong>Raportujemy to, czego faktycznie dowodzą dane.</strong></p>
     </div>
   </div></div>
-  <div class="num">27</div>
+  <div class="num">29</div>
 </section>
 
 <!-- 19 EXP_07 SYNC VS ASYNC pomiar -->
@@ -615,7 +659,7 @@ ul.dash li::before{content:"—";position:absolute;left:0;color:var(--text-mute)
     </table>
     <div class="note" style="margin-top:1rem;"><strong>Uczciwie:</strong> jitter ograniczony rozdzielczością licznika (±1 LSB ≈ 16 kHz). Szybkie ringi (carry/lut, freq_count ~8000) rozrzucają się na 8 LSB = jitter <strong>realnie rozdzielony</strong>. Sync (488 zbocz) i loopback na ±1 LSB = na granicy rozdzielczości — sync to stabilny kryształ (jitter poniżej progu pomiaru). Metryka ppm myli przy różnym freq_count, dlatego podajemy σ [kHz] + rozrzut LSB.</div>
   </div>
-  <div class="num">28</div>
+  <div class="num">30</div>
 </section>
 
 <!-- 20 LOOPBACK wynik -->
@@ -637,7 +681,7 @@ ul.dash li::before{content:"—";position:absolute;left:0;color:var(--text-mute)
       <div class="figcap">Histogram loopbacku — 32.1 MHz, rozrzut 3 LSB.</div>
     </div>
   </div></div>
-  <div class="num">29</div>
+  <div class="num">31</div>
 </section>
 
 <!-- TRNG 1 — ŹRÓDŁO ENTROPII -->
@@ -658,7 +702,7 @@ ul.dash li::before{content:"—";position:absolute;left:0;color:var(--text-mute)
       <div class="note" style="margin-top:.9rem;"><strong>Uczciwie:</strong> brak biasu (monobit OK) to nie wszystko. Surowe LSB mają resztkową <strong>korelację strukturalną</strong> — werdykt NIST na następnym slajdzie.</div>
     </div>
   </div></div>
-  <div class="num">30</div>
+  <div class="num">32</div>
 </section>
 
 <!-- TRNG 2 — NIST + WERDYKT -->
@@ -682,7 +726,7 @@ ul.dash li::before{content:"—";position:absolute;left:0;color:var(--text-mute)
       <div class="note" style="margin-top:.9rem;"><strong>Werdykt (uczciwie):</strong> surowy LSB nie wystarcza — słabość jest <strong>strukturalna</strong> (korelacja krótkozasięgowa), nie biasowa. <strong>XOR-combine + von Neumann → 9/9.</strong> ALE strumienie 1k–28k bitów « NIST STS (~10⁶/strumień) → <strong>p-value orientacyjne, nie rozstrzygające</strong>. Produkcyjnie: dłuższa akwizycja (AXI/UART zamiast bufora ILA) + conditioner (hash).</div>
     </div>
   </div></div>
-  <div class="num">31</div>
+  <div class="num">33</div>
 </section>
 
 <!-- 21 TABELA PORÓWNAWCZA koncepcyjna -->
@@ -704,7 +748,7 @@ ul.dash li::before{content:"—";position:absolute;left:0;color:var(--text-mute)
       </tbody>
     </table>
   </div>
-  <div class="num">32</div>
+  <div class="num">34</div>
 </section>
 
 <!-- 22 WNIOSKI -->
@@ -726,7 +770,7 @@ ul.dash li::before{content:"—";position:absolute;left:0;color:var(--text-mute)
       <li>Walka z syntezatorem jest sama w sobie wartością — pokazuje granice toolchainu</li>
     </ul></div>
   </div></div>
-  <div class="num">33</div>
+  <div class="num">35</div>
 </section>
 
 <!-- 23 FIN -->
@@ -739,7 +783,7 @@ ul.dash li::before{content:"—";position:absolute;left:0;color:var(--text-mute)
     <div><div style="color:var(--accent);font-size:.7rem;text-transform:uppercase;letter-spacing:.2em;margin-bottom:.3rem;">Platforma</div>Xilinx Zynq-7010 · Zybo Z7-10</div>
     <div><div style="color:var(--accent);font-size:.7rem;text-transform:uppercase;letter-spacing:.2em;margin-bottom:.3rem;">Toolchain</div>Vivado 2018.3 · ILA · matplotlib</div>
   </div>
-  <div class="num">34</div>
+  <div class="num">36</div>
 </section>
 
 </div>

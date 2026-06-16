@@ -17,7 +17,8 @@
 | freq_counter (TDC, okno 1 ms) | ✅ działa | sym + ILA |
 | Pomiar przez ILA over JTAG | ✅ działa | 4096 okien × 7 wariantów |
 | Symulacje behawioralne (4 tb) | ✅ działa | 7 waveformów |
-| Block Design AXI4-Lite + ARM | ✅ zaprojektowany | bitstream ZedBoard, 0 errors (NIE odpalony na Zybo) |
+| Block Design AXI4-Lite + ARM | ✅ **działa na Zybo** | ARM czyta freq_count przez AXI (XSCT), tap/osc_select sterują ringiem |
+| TRNG + testy NIST | ✅ działa | surowe LSB 5/9; XOR+von Neumann → NIST 9/9 (`analysis/trng/`) |
 
 ### Realne liczby (zweryfikowane ze skryptem na CSV 2026-06-15)
 | Wariant | f [MHz] | σ [kHz] | jitter |
@@ -43,9 +44,10 @@ Każda liczba w prezentacji **zgadza się** z tymi danymi. Wszystkie z 4096 okie
 | F2.5 | LUT ring | ✅ DONE |
 | F3 | symulacje behawioralne | ✅ DONE (mock, bo SDF wiesza XSim) |
 | F4 | freq_counter + prescaler | ✅ DONE (sym + krzem) |
-| F5 | Block Design AXI + ARM C | ⚠️ ZAPROJEKTOWANY (bitstream ZedBoard, nie odpalony na Zybo) |
+| F5 | Block Design AXI + ARM | ✅ DONE na Zybo (ARM czyta ring przez AXI, XSCT; UART display glitch pominięty) |
 | F6 | IO loopback | ✅ DONE (na krzemie) |
 | F7 | pomiary f(N), jitter | ✅ DONE (kampania ILA) |
+| TRNG | entropia jitteru + NIST | ✅ DONE (raw 5/9 → XOR/von Neumann 9/9; strumienie krótkie → orientacyjnie) |
 | F8 | drift termiczny | ⚠️ CZĘŚCIOWO (kierunek OK, efekt poniżej szumu — uczciwie w prezce) |
 | F8 | f(T) z XADC | ❌ NIE zrobione (XADC = PS, na Zybo standalone PL brak) |
 | F8 | phase locking | ❌ NIE zrobione |
@@ -54,11 +56,11 @@ Każda liczba w prezentacji **zgadza się** z tymi danymi. Wszystkie z 4096 okie
 
 ---
 
-## 3. Prezentacja — `prezka/prezentacja_wyniki.html` (32 slajdy)
+## 3. Prezentacja — `docs/presentation/prezentacja_koncowa.html` (36 slajdów)
 
-**Stan: kompletna, spójna z danymi, 0 placeholderów.**
+**Stan: kompletna, spójna z danymi, 0 placeholderów. Na GitHub Pages: https://mcvicz.github.io/Async-RO-Delay-FPGA/**
 
-Struktura: Teoria (1-9) → Pomiar+BD+Vivado (10-13) → Symulacje (14-21) → Wyniki (22-32).
+Struktura: Teoria → Architektura → Pomiar+BD → Symulacje → Wyniki z krzemu → **F5 ARM na żywo (12-14)** → **TRNG+NIST (30-31)** → tabela/wnioski.
 
 Pokrycie:
 - ✅ wszystkie 4 warianty oscylatora opisane + zdiagramowane
@@ -115,14 +117,16 @@ Prezka używa REALNYCH. Stare syntetyczne leżą obok — mylące, ale nieszkodl
 **Mocne:**
 - Rdzeń projektu (async ring bez LUT) **działa na realnym krzemie** — to jest sedno i jest zrobione.
 - Pomiary realne, zweryfikowane, zero mocków w danych. Liczby się zgadzają.
-- Prezentacja solidna, kompletna, uczciwa (sama oznacza ograniczenia).
-- Pokazane OBA tory: zaprojektowany AXI/ARM (F5) i działający pomiar (ILA).
+- **F5 ARM/AXI uruchomiony na Zybo** — ARM czyta ring przez AXI4-Lite na krzemie (XSCT). Wcześniej tylko zaprojektowany.
+- **TRNG + testy NIST** — entropia z jitteru, uczciwa analiza (raw 5/9 → XOR/von Neumann 9/9).
+- Prezentacja solidna (36 slajdów), kompletna, uczciwa, na GitHub Pages.
 
 **Słabe (uczciwie):**
-- Dokumentacja .md rozjechana — połowa opisuje stary stan ZedBoard. To realny dług.
-- f(T) / phase locking / SDF-vs-HW — niezrobione (część niemożliwa: SDF wiesza, XADC wymaga PS).
+- f(T) / phase locking / SDF-vs-HW — niezrobione (część niemożliwa: SDF wiesza, XADC wymaga PL XADC).
 - Drift termiczny słabo widoczny (poniżej szumu) — przyznane.
-- AXI/ARM nigdy nie odpalony na finalnej płytce (tylko bitstream ZedBoard).
+- **UART display nie działał** (glitch sprzętowy płytki) — pełny tor PS+PL działa, weryfikacja przez XSCT zamiast terminala.
+- ARM uruchomiony w osobnym buildzie (inny placement/zegar niż ILA) → liczby ARM ≠ liczby f(N); pokazywane względnie, nie zestawiane.
+- TRNG: strumienie krótkie (1k–28k bit ≪ NIST ~10⁶) → p-value orientacyjne, nie rozstrzygające.
 - Brak raportu końcowego PDF (prezka go zastępuje).
 
-**Czy coś „oszukane":** NIE. Dane realne, ograniczenia opisane wprost. Największe ryzyko to nie ściema, tylko **sprzeczność dokumentacji** — łatwa do naprawienia (punkty 1-3).
+**Czy coś „oszukane":** NIE. Dane realne, ograniczenia opisane wprost — także na slajdach. Dokumentacja zaktualizowana do stanu finalnego (06-16).

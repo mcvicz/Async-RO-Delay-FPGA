@@ -41,6 +41,8 @@ ILA przez JTAG (4096 okien, storage-qualified) → analiza w Pythonie.
 | IO-loopback przez Pmod | 32.1 MHz |
 | LUT ring | 112.7 MHz |
 | Zasoby | 77× CARRY4, 0 LUT w pętli (cel osiągnięty) |
+| **ARM/AXI na Zybo (F5)** | ARM Cortex-A9 czyta ring przez AXI4-Lite na krzemie (XSCT) |
+| **TRNG z jitteru + NIST** | surowe LSB 5/9; XOR + von Neumann → NIST 9/9 (`analysis/trng/`) |
 
 ## Jak używać
 

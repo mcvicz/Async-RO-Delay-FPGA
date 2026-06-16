@@ -4,6 +4,29 @@ Chronologiczna historia projektu. Dopisujemy na bieżąco po każdej sesji.
 
 ---
 
+## Sesja 7 — 2026-06-16 (ARM na krzemie + TRNG — push wielo-sesyjny)
+
+**Cel:** w dniu prezentacji (18:30) podnieść projekt — ARM na Zybo + TRNG. 3 sesje CC równolegle.
+
+### Zrobione
+- **F5 ARM/AXI URUCHOMIONY na Zybo Z7-10** (wcześniej tylko zaprojektowany, bitstream ZedBoard):
+  - Diagnoza: board files Digilent Zybo nie były zainstalowane → doinstalowane. Stary BD = ZedBoard.
+  - Świeży projekt `arm_zybo_build/` (PS7 preset Zybo + AXI Interconnect + osc_axi_system), bitstream, SDK app.
+  - **ARM czyta `freq_count` przez AXI4-Lite @0x43C00000** na krzemie: tap63→162, tap15→291, lut→279 (krótszy ring = wyższa f, ARM steruje). Dowód: konsola XSCT.
+  - UART display krzaczył (glitch sprzętowy płytki mimo poprawnej konfiguracji zegara/baud) → weryfikacja przez XSCT zamiast terminala. Pełny tor PS+PL działa.
+  - Uwaga: osobny build → inny placement/zegar niż ILA → liczby ARM ≠ f(N) ILA; pokazywane względnie.
+- **TRNG + testy NIST** (`analysis/trng/`) z realnego jitteru:
+  - Ekstrakcja LSB z freq_count → strumienie bitów → testy (monobit, runs, entropia, autokorelacja, NIST STS).
+  - Surowe LSB: korelacja strukturalna (carry_64 → 5/9). **XOR-combine + von Neumann → NIST 9/9.**
+  - Uczciwie: strumienie krótkie (1k–28k bit ≪ NIST ~10⁶) → p-value orientacyjne.
+- **Prezentacja 34→36 slajdów**: +2 TRNG (bias LSB, NIST), +2 ARM (dowód XSCT, tor PS+PL), F5 przeramowany „od projektu do krzemu". Pages live.
+- **Workflow:** 3 sesje CC równolegle (ARM w sandbox `projektv2/` bez gita, TRNG + integrator w oryginale), koordynacja przez `_coordination/STATUS.md`, jeden committer (integrator). Sandbox v2 = oryginał bezpieczny.
+- **Docs zaktualizowane** do stanu finalnego (README, PROJECT_GUIDE, RAPORT_STANU, analysis/README, ten dziennik).
+
+### Stan: ~98%. ARM na krzemie + TRNG. Prezka 36 slajdów na GitHub Pages.
+
+---
+
 ## Sesja 6 — 2026-06-15 (prezentacja końcowa + porządki + audyt)
 
 **Cel:** domknąć prezentację końcową, posprzątać repo, uczciwy audyt stanu.

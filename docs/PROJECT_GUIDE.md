@@ -51,8 +51,8 @@ Asynchroniczny generator częstotliwości (**ring oscillator**) zbudowany z elem
 
 **Realna f = `freq_count × 16 kHz`** (prescaler /16, okno 1 ms).
 
-### Alternatywny tor (F5, zaprojektowany — NIE odpalony na Zybo)
-Block Design: Zynq PS7 + AXI Interconnect + `osc_axi_system` (AXI4-Lite slave @0x43C00000) → ARM Cortex-A9 (`sw/main.c`) → UART → PC. Bitstream wygenerowany na ZedBoard (0 errors). Na Zybo wymagałby rekonfiguracji PS7 → użyliśmy prostszego ILA.
+### Tor PS+PL (F5) — DZIAŁA na Zybo (2026-06-16)
+Block Design: Zynq PS7 + AXI Interconnect + `osc_axi_system` (AXI4-Lite slave @0x43C00000) → ARM Cortex-A9. **Uruchomiony na realnym Zybo Z7-10** (board files Digilent, świeży projekt `arm_zybo_build/`): ARM czyta `freq_count` przez AXI, zapis `tap`/`osc_select` zmienia odczyt (tap63→162, tap15→291, lut→279 — krótszy ring = wyższa f, ARM steruje ringiem). Dowód: konsola XSCT (`mrd 0x43C00000`). UART jako wyświetlanie pominięty (glitch sprzętowy płytki) — pełny tor PS+PL działa. Wcześniej tylko zaprojektowany + bitstream ZedBoard.
 
 ---
 
@@ -67,8 +67,8 @@ Block Design: Zynq PS7 + AXI Interconnect + `osc_axi_system` (AXI4-Lite slave @0
 | `freq_counter.v` | Okno 1ms + 2FF synchronizer + licznik zboczy | ✅ |
 | `async_prescaler.v` | Ripple /16 (DIV_BITS=4) taktowany ringiem | ✅ |
 | `top_system_zybo.v` | **TOP finalny** — warianty+mux+prescaler+counter+ILA hooks | ✅ |
-| `freq_counter_axi.v` | AXI4-Lite slave (do BD/F5) | ⚠️ zaprojektowany |
-| `osc_axi_system.v` | PL top dla BD (do BD/F5) | ⚠️ zaprojektowany |
+| `freq_counter_axi.v` | AXI4-Lite slave (BD/F5) | ✅ działa na Zybo (ARM/AXI) |
+| `osc_axi_system.v` | PL top dla BD (BD/F5) | ✅ działa na Zybo (ARM/AXI) |
 | `top_system.v` | Stary top standalone (ZedBoard) | 🕓 archiwum |
 
 ### Walka z Vivado (kluczowe do obrony)
@@ -124,9 +124,11 @@ Wykresy lądują w `analysis/figures/`. Szczegóły: `analysis/README.md`, plan:
 | EXP_05 | phase locking | ❌ NIE | nie robione |
 | EXP_06 | walidacja SDF vs HW | ❌ NIE | SDF wiesza XSim |
 | EXP_07 | sync vs async | ✅ DONE | tabela: f, σ, rozrzut LSB |
+| F5 | ARM/AXI na Zybo | ✅ DONE | ARM czyta ring przez AXI (XSCT), na krzemie |
 | F6 | IO loopback | ✅ DONE | 32.1 MHz przez Pmod |
+| TRNG | entropia z jitteru + NIST | ✅ DONE | surowe LSB 5/9; XOR+von Neumann → NIST 9/9 |
 
-Realne liczby: patrz `docs/RAPORT_STANU.md`.
+Realne liczby: patrz `docs/RAPORT_STANU.md`. TRNG: `analysis/trng/REPORT.md`.
 
 ---
 
@@ -141,6 +143,6 @@ Realne liczby: patrz `docs/RAPORT_STANU.md`.
 
 ---
 
-## 8. Status: ~95%
+## 8. Status: ~98%
 
-F1–F4, F6, F7 DONE na krzemie. F5 zaprojektowany (BD, bitstream ZedBoard). EXP_01/02/07 zmierzone. Prezentacja końcowa: `prezka/prezentacja_wyniki.html` (32 slajdy). Brakuje: f(T)/phase locking (część niemożliwa na Zybo standalone), raport PDF (prezka zastępuje).
+F1–F7 DONE na krzemie — w tym **F5 ARM/AXI uruchomiony na Zybo** (ARM czyta ring przez AXI, XSCT) oraz **TRNG + testy NIST** (`analysis/trng/`). EXP_01/02/07 zmierzone. Prezentacja końcowa: `docs/presentation/prezentacja_koncowa.html` (36 slajdów, GitHub Pages: https://mcvicz.github.io/Async-RO-Delay-FPGA/). Brakuje: f(T)/phase locking (część niemożliwa na Zybo standalone), UART display (glitch — tor PS+PL działa via XSCT), raport PDF (prezka zastępuje).

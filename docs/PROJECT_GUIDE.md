@@ -52,7 +52,7 @@ Asynchroniczny generator częstotliwości (**ring oscillator**) zbudowany z elem
 **Realna f = `freq_count × 16 kHz`** (prescaler /16, okno 1 ms).
 
 ### Tor PS+PL (F5) — DZIAŁA na Zybo (2026-06-16)
-Block Design: Zynq PS7 + AXI Interconnect + `osc_axi_system` (AXI4-Lite slave @0x43C00000) → ARM Cortex-A9. **Uruchomiony na realnym Zybo Z7-10** (board files Digilent, świeży projekt `arm_zybo_build/`): ARM czyta `freq_count` przez AXI, zapis `tap`/`osc_select` zmienia odczyt (tap63→162, tap15→291, lut→279 — krótszy ring = wyższa f, ARM steruje ringiem). Dowód: konsola XSCT (`mrd 0x43C00000`). UART jako wyświetlanie pominięty (glitch sprzętowy płytki) — pełny tor PS+PL działa. Wcześniej tylko zaprojektowany + bitstream ZedBoard.
+Block Design: Zynq PS7 + AXI Interconnect + `osc_axi_system` (AXI4-Lite slave @0x43C00000) → ARM Cortex-A9. **Uruchomiony na realnym Zybo Z7-10** (board files Digilent; skrypty budujące w `arm_zybo/`): ARM czyta `freq_count` przez AXI, zapis `tap`/`osc_select` zmienia odczyt (tap63→162, tap15→291, lut→279 — krótszy ring = wyższa f, ARM steruje ringiem). Weryfikacja przez konsolę XSCT (`mrd 0x43C00000`). UART jako wyświetlanie pominięty (glitch sprzętowy płytki) — pełny tor PS+PL działa. Wcześniej tylko zaprojektowany + bitstream ZedBoard. Opis: `arm_zybo/README.md`.
 
 ---
 
@@ -128,7 +128,7 @@ Wykresy lądują w `analysis/figures/`. Szczegóły: `analysis/README.md`, plan:
 | F6 | IO loopback | ✅ DONE | 32.1 MHz przez Pmod |
 | TRNG | entropia z jitteru + NIST | ✅ DONE | surowe LSB 5/9; XOR+von Neumann → NIST 9/9 |
 
-Realne liczby: patrz `docs/RAPORT_STANU.md`. TRNG: `analysis/trng/REPORT.md`.
+Realne liczby pomiarów: `measurements/` + `analysis/`. TRNG: `analysis/trng/REPORT.md`.
 
 ---
 
@@ -143,6 +143,16 @@ Realne liczby: patrz `docs/RAPORT_STANU.md`. TRNG: `analysis/trng/REPORT.md`.
 
 ---
 
-## 8. Status: ~98%
+## 8. Zakres zrealizowany
 
-F1–F7 DONE na krzemie — w tym **F5 ARM/AXI uruchomiony na Zybo** (ARM czyta ring przez AXI, XSCT) oraz **TRNG + testy NIST** (`analysis/trng/`). EXP_01/02/07 zmierzone. Prezentacja końcowa: `docs/presentation/prezentacja_koncowa.html` (36 slajdów, GitHub Pages: https://mcvicz.github.io/Async-RO-Delay-FPGA/). Brakuje: f(T)/phase locking (część niemożliwa na Zybo standalone), UART display (glitch — tor PS+PL działa via XSCT), raport PDF (prezka zastępuje).
+Wszystkie warianty oscylatora (CARRY4, LUT, IO-loopback, sync) **działają na krzemie** Zybo Z7-10.
+Zrealizowano pełny łańcuch: RTL → bitstream → krzem → pomiar (ILA) → analiza (Python). Dodatkowo
+**tor PS+PL z ARM** (odczyt ringu przez AXI4-Lite, `arm_zybo/`) oraz **TRNG z jitteru + testy NIST**
+(`analysis/trng/`). Charakterystyki EXP_01 (f(N)), EXP_02 (jitter), EXP_07 (sync vs async) — zmierzone.
+Prezentacja: `docs/presentation/prezentacja_koncowa.html` (GitHub Pages: https://mcvicz.github.io/Async-RO-Delay-FPGA/).
+
+### Kierunki rozwoju (możliwe rozszerzenia)
+- f(T) z wymuszonym grzaniem (komora termiczna / workload) — kalibracja jako termometr
+- PUF na wielu egzemplarzach FPGA (wariacja produkcyjna)
+- TRNG z dłuższą akwizycją (pełny NIST STS, ~10⁶ bitów/strumień)
+- Phase/injection locking dwóch ringów

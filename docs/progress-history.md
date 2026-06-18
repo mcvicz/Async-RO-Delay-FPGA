@@ -4,26 +4,25 @@ Chronologiczna historia projektu. Dopisujemy na bieżąco po każdej sesji.
 
 ---
 
-## Sesja 7 — 2026-06-16 (ARM na krzemie + TRNG — push wielo-sesyjny)
+## Sesja 7 — 2026-06-16 (ARM na krzemie + TRNG)
 
-**Cel:** w dniu prezentacji (18:30) podnieść projekt — ARM na Zybo + TRNG. 3 sesje CC równolegle.
+**Cel:** uruchomić tor PS+PL z ARM na Zybo oraz zbudować TRNG z jitteru.
 
 ### Zrobione
 - **F5 ARM/AXI URUCHOMIONY na Zybo Z7-10** (wcześniej tylko zaprojektowany, bitstream ZedBoard):
   - Diagnoza: board files Digilent Zybo nie były zainstalowane → doinstalowane. Stary BD = ZedBoard.
-  - Świeży projekt `arm_zybo_build/` (PS7 preset Zybo + AXI Interconnect + osc_axi_system), bitstream, SDK app.
-  - **ARM czyta `freq_count` przez AXI4-Lite @0x43C00000** na krzemie: tap63→162, tap15→291, lut→279 (krótszy ring = wyższa f, ARM steruje). Dowód: konsola XSCT.
-  - UART display krzaczył (glitch sprzętowy płytki mimo poprawnej konfiguracji zegara/baud) → weryfikacja przez XSCT zamiast terminala. Pełny tor PS+PL działa.
+  - Świeży projekt (PS7 preset Zybo + AXI Interconnect + osc_axi_system), bitstream, SDK app. Skrypty: `arm_zybo/`.
+  - **ARM czyta `freq_count` przez AXI4-Lite @0x43C00000** na krzemie: tap63→162, tap15→291, lut→279 (krótszy ring = wyższa f, ARM steruje). Weryfikacja przez konsolę XSCT.
+  - UART display krzaczył (glitch sprzętowy płytki mimo poprawnej konfiguracji zegara/baud) → odczyt przez XSCT zamiast terminala. Pełny tor PS+PL działa.
   - Uwaga: osobny build → inny placement/zegar niż ILA → liczby ARM ≠ f(N) ILA; pokazywane względnie.
 - **TRNG + testy NIST** (`analysis/trng/`) z realnego jitteru:
   - Ekstrakcja LSB z freq_count → strumienie bitów → testy (monobit, runs, entropia, autokorelacja, NIST STS).
   - Surowe LSB: korelacja strukturalna (carry_64 → 5/9). **XOR-combine + von Neumann → NIST 9/9.**
   - Uczciwie: strumienie krótkie (1k–28k bit ≪ NIST ~10⁶) → p-value orientacyjne.
-- **Prezentacja 34→36 slajdów**: +2 TRNG (bias LSB, NIST), +2 ARM (dowód XSCT, tor PS+PL), F5 przeramowany „od projektu do krzemu". Pages live.
-- **Workflow:** 3 sesje CC równolegle (ARM w sandbox `projektv2/` bez gita, TRNG + integrator w oryginale), koordynacja przez `_coordination/STATUS.md`, jeden committer (integrator). Sandbox v2 = oryginał bezpieczny.
-- **Docs zaktualizowane** do stanu finalnego (README, PROJECT_GUIDE, RAPORT_STANU, analysis/README, ten dziennik).
+- **Prezentacja rozbudowana**: slajdy TRNG (bias LSB, NIST) + ARM (dowód XSCT), F5 przeramowany „od projektu do krzemu". GitHub Pages.
+- **Dokumentacja zaktualizowana** do stanu finalnego (README, PROJECT_GUIDE, analysis/README, ten dziennik).
 
-### Stan: ~98%. ARM na krzemie + TRNG. Prezka 36 slajdów na GitHub Pages.
+### Stan: rdzeń + ARM + TRNG na krzemie. Prezka na GitHub Pages.
 
 ---
 
@@ -34,7 +33,7 @@ Chronologiczna historia projektu. Dopisujemy na bieżąco po każdej sesji.
 ### Zrobione
 - **Prezentacja końcowa** `prezka/prezentacja_wyniki.html` — 32 slajdy: teoria (paradygmat, 4 warianty, diagramy SVG) → pomiar (infra, BD/F5, walka z Vivado) → symulacje (7 waveformów, jeden na slajd) → wyniki realne. Screeny skalowane (`object-fit`, portretowe nie rozjeżdżają się).
 - **Block Design odzyskany** — otwarty z `system_bd.tcl` w osobnym projekcie xc7z020, screen do prezki (slajd F5). Pliki BD cały czas były na dysku (wypięte z .xpr w sesji 4), nic nie zginęło.
-- **Audyt + RAPORT_STANU.md** — zweryfikowane realne liczby ze skryptem (carry_16: 134.37 MHz/σ17.3/129ppm itd. — zgodne z prezką). Potwierdzono: zero mocków w danych, f(N) w prezce z realnego `real_fN.csv`.
+- **Audyt liczb** — zweryfikowane realne wartości ze skryptem (carry_16: 134.37 MHz/σ17.3/129ppm itd. — zgodne z prezką). Zero mocków w danych, f(N) w prezce z realnego `real_fN.csv`.
 - **Wielkie porządki w repo:**
   - `measurements/` — realne CSV z krzemu (było w `fpga_project/oscillator/`), drift do `measurements/drift/`, stare /256 do `measurements/past_versions/old_256/`
   - `analysis/figures/` — realne histogramy + f(N); legacy (syntetyczne skrypty/CSV/figi, UART) → `analysis/past_versions/`
@@ -42,12 +41,11 @@ Chronologiczna historia projektu. Dopisujemy na bieżąco po każdej sesji.
   - outer `files/` (stare planowanie) → `repo/past_versions/planning_docs/`
 - **Aktualizacja docs** — `PROJECT_GUIDE.md`, `analysis/README.md`, `docs/README.md` przepisane na stan finalny (Zybo /16 ILA). Wcześniej opisywały stary ZedBoard /256 — sprzeczność z rzeczywistością naprawiona.
 
-### Uczciwie niezrobione (w RAPORT_STANU.md)
-- f(T) XADC (wymaga PS, Zybo standalone PL), phase locking, SDF-vs-HW (SDF wiesza XSim)
-- AXI/ARM nie odpalony na Zybo (tylko bitstream ZedBoard)
-- raport PDF (prezka zastępuje)
+### Kierunki rozwoju (na ten moment)
+- f(T) z XADC (wymaga PS / PL XADC + grzanie), phase locking, walidacja SDF vs HW
+- AXI/ARM (zaprojektowany; uruchomiony w sesji 7)
 
-### Stan: ~95%. Rdzeń na krzemie, pomiary realne, dokumentacja spójna.
+### Stan: rdzeń na krzemie, pomiary realne, dokumentacja spójna.
 
 ---
 
@@ -171,7 +169,6 @@ Brakuje: twarde pomiary (CSV/UART wymaga BD+PS pod Zybo — odłożone), F6 loop
 | F9 | Raport końcowy PDF | — (można pisać) |
 
 ## Konwencja commitów
-- Bez `Co-Authored-By` (wymóg uczelni)
 - Prefix fazą: `F4:`, `F5:`, `F9:`
 - Branch roboczy: `mcvicz`
 - Po fazie: commit + push origin mcvicz

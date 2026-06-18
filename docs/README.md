@@ -7,7 +7,6 @@ Folder na bieżąco aktualizowany, commitowany z projektem.
 | Plik | Co |
 |---|---|
 | `PROJECT_GUIDE.md` | **Główny dokument** — architektura, moduły, tor pomiarowy, eksperymenty, errata. Stan finalny (Zybo + ILA). |
-| `RAPORT_STANU.md` | Uczciwy raport: co zrobione / udokumentowane / nie. Realne liczby zweryfikowane z CSV. |
 | `MEASUREMENT_PLAN.md` | Matryca pomiarów ILA — które switche, jakie nazwy CSV, oczekiwane wartości. |
 | `progress-history.md` | Dziennik zmian — chronologia sesji, commity, decyzje. Dopisujemy po każdej sesji. |
 

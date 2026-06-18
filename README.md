@@ -74,18 +74,17 @@ Wykresy → `analysis/figures/`.
 
 ```
 fpga_project/oscillator/   projekt Vivado (RTL, XDC, Block Design, bitstream)
+arm_zybo/                  tor PS+PL: ARM czyta ring przez AXI4-Lite (skrypty + opis)
 measurements/              realne dane z krzemu (CSV z ILA) + drift/
-analysis/                  skrypty ILA + realne wykresy (figures/)
+analysis/                  skrypty ILA + realne wykresy (figures/) + TRNG (trng/)
 docs/                      dokumentacja + prezentacja (GitHub Pages)
   PROJECT_GUIDE.md           pełna dokumentacja techniczna
   MEASUREMENT_PLAN.md        matryca pomiarów
-  RAPORT_STANU.md            uczciwy status (co zrobione/nie)
-  presentation/              prezentacja końcowa (HTML, 32 slajdy)
-*/past_versions/           archiwum (stare wersje, nie kasujemy historii)
+  presentation/              prezentacja końcowa (HTML, GitHub Pages)
+*/past_versions/           archiwum (stare wersje)
 ```
 
 Pełny opis techniczny: **[`docs/PROJECT_GUIDE.md`](docs/PROJECT_GUIDE.md)**.
-Status i uczciwy bilans: **[`docs/RAPORT_STANU.md`](docs/RAPORT_STANU.md)**.
 
 ## Stack
 

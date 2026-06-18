@@ -1,13 +1,12 @@
 # Przewodnik po projekcie — Async Ring Oscillator na FPGA
 
-**Pełna dokumentacja techniczna — stan FINALNY (na krzemie).**
+**Pełna dokumentacja techniczna.**
 
 Autorzy: Paweł Michalcewicz, Krzysztof Podoba · Prowadzący: dr inż. Jamro
-Platforma finalna: **Digilent Zybo Z7-10 — Zynq-7010 (`xc7z010clg400-1`)**, Vivado 2018.3
+Platforma docelowa: **Digilent Zybo Z7-10 — Zynq-7010 (`xc7z010clg400-1`)**, Vivado 2018.3
 
-> Uwaga historyczna: projekt zaczynał na ZedBoard (xc7z020). Prowadzący dał Zybo Z7-10 —
-> pivot na inny chip, standalone PL, pomiar przez ILA. Stare dokumenty ZedBoard:
-> `docs/past_versions/`.
+> Uwaga historyczna: prace rozpoczęto na ZedBoard (xc7z020); platformę zmieniono na Zybo Z7-10
+> (inny układ, konfiguracja standalone PL, pomiar przez ILA).
 
 ---
 
@@ -51,7 +50,7 @@ Asynchroniczny generator częstotliwości (**ring oscillator**) zbudowany z elem
 
 **Realna f = `freq_count × 16 kHz`** (prescaler /16, okno 1 ms).
 
-### Tor PS+PL (F5) — DZIAŁA na Zybo (2026-06-16)
+### Tor PS+PL (F5) — uruchomiony na Zybo
 Block Design: Zynq PS7 + AXI Interconnect + `osc_axi_system` (AXI4-Lite slave @0x43C00000) → ARM Cortex-A9. **Uruchomiony na realnym Zybo Z7-10** (board files Digilent; skrypty budujące w `arm_zybo/`): ARM czyta `freq_count` przez AXI, zapis `tap`/`osc_select` zmienia odczyt (tap63→162, tap15→291, lut→279 — krótszy ring = wyższa f, ARM steruje ringiem). Weryfikacja przez konsolę XSCT (`mrd 0x43C00000`). UART jako wyświetlanie pominięty (glitch sprzętowy płytki) — pełny tor PS+PL działa. Wcześniej tylko zaprojektowany + bitstream ZedBoard. Opis: `arm_zybo/README.md`.
 
 ---
@@ -71,7 +70,7 @@ Block Design: Zynq PS7 + AXI Interconnect + `osc_axi_system` (AXI4-Lite slave @0
 | `osc_axi_system.v` | PL top dla BD (BD/F5) | ✅ działa na Zybo (ARM/AXI) |
 | `top_system.v` | Stary top standalone (ZedBoard) | 🕓 archiwum |
 
-### Walka z Vivado (kluczowe do obrony)
+### Wyzwania toolchain (Vivado) — kluczowe technicznie
 - `(* dont_touch="true", keep="true" *)` — na nodach pętli, blokuje wycięcie
 - Jawna pętla (`assign feedback = enable & ~pmod_in`) — nie inferencja
 - `set_false_path` — wyłączenie analizy timing pętli kombinacyjnej
@@ -79,7 +78,7 @@ Block Design: Zynq PS7 + AXI Interconnect + `osc_axi_system` (AXI4-Lite slave @0
 - `CLOCK_DEDICATED_ROUTE FALSE` — pin→BUFG dla loopback/prescalera
 - ILA dbg_hub: ścieżka temp <146 znaków → `subst X:` na repo
 - Storage qualification (`C_EN_STRG_QUAL`, `MU_CNT≥2`) — capture tylko `freq_valid==1`
-- Prescaler /256→/16 — finer rozdzielczość jitteru (8 poziomów zamiast 2)
+- Prescaler /256→/16 — lepsza rozdzielczość jitteru (8 poziomów zamiast 2)
 
 ---
 
@@ -117,16 +116,16 @@ Wykresy lądują w `analysis/figures/`. Szczegóły: `analysis/README.md`, plan:
 
 | # | Eksperyment | Stan | Wynik |
 |---|---|---|---|
-| EXP_01 | f(N) krzywa strojenia | ✅ DONE | 134→67 MHz, t_d ≈ 82 ps/stopień |
-| EXP_02 | histogram jitteru | ✅ DONE | carry 129–148 ppm |
-| EXP_03 | drift termiczny | ⚠️ CZĘŚCIOWO | kierunek OK, efekt poniżej szumu (uczciwie) |
-| EXP_04 | f(T) z XADC | ❌ NIE | XADC=PS, Zybo standalone PL — brak |
-| EXP_05 | phase locking | ❌ NIE | nie robione |
-| EXP_06 | walidacja SDF vs HW | ❌ NIE | SDF wiesza XSim |
-| EXP_07 | sync vs async | ✅ DONE | tabela: f, σ, rozrzut LSB |
-| F5 | ARM/AXI na Zybo | ✅ DONE | ARM czyta ring przez AXI (XSCT), na krzemie |
-| F6 | IO loopback | ✅ DONE | 32.1 MHz przez Pmod |
-| TRNG | entropia z jitteru + NIST | ✅ DONE | surowe LSB 5/9; XOR+von Neumann → NIST 9/9 |
+| EXP_01 | f(N) krzywa strojenia | ✅ zrealizowane | 134→67 MHz, t_d ≈ 82 ps/stopień |
+| EXP_02 | histogram jitteru | ✅ zrealizowane | carry 129–148 ppm |
+| EXP_03 | drift termiczny | ⚠️ częściowo | kierunek zgodny, efekt poniżej szumu pomiarowego |
+| EXP_04 | f(T) z XADC | ❌ nie | XADC=PS, Zybo standalone PL — brak |
+| EXP_05 | phase locking | ❌ nie | nie zrealizowane |
+| EXP_06 | walidacja SDF vs HW | ❌ nie | SDF wiesza XSim |
+| EXP_07 | sync vs async | ✅ zrealizowane | tabela: f, σ, rozrzut LSB |
+| F5 | ARM/AXI na Zybo | ✅ zrealizowane | ARM czyta ring przez AXI (XSCT), na krzemie |
+| F6 | IO loopback | ✅ zrealizowane | 32.1 MHz przez Pmod |
+| TRNG | entropia z jitteru + NIST | ✅ zrealizowane | surowe LSB 5/9; XOR+von Neumann → NIST 9/9 |
 
 Realne liczby pomiarów: `measurements/` + `analysis/`. TRNG: `analysis/trng/REPORT.md`.
 

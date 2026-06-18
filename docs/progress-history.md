@@ -1,174 +1,64 @@
 # Dziennik zmian — Async Ring Oscillator FPGA
 
-Chronologiczna historia projektu. Dopisujemy na bieżąco po każdej sesji.
+Chronologiczny przebieg prac, aktualizowany po każdym etapie.
 
 ---
 
-## Sesja 7 — 2026-06-16 (ARM na krzemie + TRNG)
+## 2026-06-16 — Tor PS+PL (ARM) na krzemie + TRNG
 
-**Cel:** uruchomić tor PS+PL z ARM na Zybo oraz zbudować TRNG z jitteru.
+- **F5 — tor AXI4-Lite + ARM uruchomiony na Zybo Z7-10** (wcześniej zaprojektowany, bitstream na ZedBoard):
+  doinstalowano board files Digilent (Zybo), zbudowano świeży projekt (PS7 preset Zybo + AXI Interconnect
+  + `osc_axi_system`), bitstream i aplikację SDK. ARM odczytuje `freq_count` przez AXI (@0x43C00000);
+  zapis `tap`/`osc_select` zmienia odczyt (tap63→162, tap15→291, lut→279) — krótszy ring daje wyższy
+  odczyt. Weryfikacja przez konsolę XSCT. Wyświetlanie przez UART pominięte (usterka sprzętowa portu);
+  pełny tor PS+PL potwierdzony odczytem rejestrów. Skrypty: `arm_zybo/`.
+- **TRNG + testy losowości** (`analysis/trng/`): ekstrakcja LSB z `freq_count` → strumienie bitów →
+  testy (monobit, runs, entropia, autokorelacja, NIST SP800-22). Surowe LSB wykazują korelację
+  strukturalną (carry_64 → 5/9); po post-processingu (XOR-combine, von Neumann) → 9/9. Strumienie krótkie
+  (1k–28k bitów wobec ~10⁶ zalecanych przez NIST), więc p-value traktowane orientacyjnie.
+- **Prezentacja** rozszerzona o slajdy TRNG i ARM; opublikowana na GitHub Pages.
 
-### Zrobione
-- **F5 ARM/AXI URUCHOMIONY na Zybo Z7-10** (wcześniej tylko zaprojektowany, bitstream ZedBoard):
-  - Diagnoza: board files Digilent Zybo nie były zainstalowane → doinstalowane. Stary BD = ZedBoard.
-  - Świeży projekt (PS7 preset Zybo + AXI Interconnect + osc_axi_system), bitstream, SDK app. Skrypty: `arm_zybo/`.
-  - **ARM czyta `freq_count` przez AXI4-Lite @0x43C00000** na krzemie: tap63→162, tap15→291, lut→279 (krótszy ring = wyższa f, ARM steruje). Weryfikacja przez konsolę XSCT.
-  - UART display krzaczył (glitch sprzętowy płytki mimo poprawnej konfiguracji zegara/baud) → odczyt przez XSCT zamiast terminala. Pełny tor PS+PL działa.
-  - Uwaga: osobny build → inny placement/zegar niż ILA → liczby ARM ≠ f(N) ILA; pokazywane względnie.
-- **TRNG + testy NIST** (`analysis/trng/`) z realnego jitteru:
-  - Ekstrakcja LSB z freq_count → strumienie bitów → testy (monobit, runs, entropia, autokorelacja, NIST STS).
-  - Surowe LSB: korelacja strukturalna (carry_64 → 5/9). **XOR-combine + von Neumann → NIST 9/9.**
-  - Uczciwie: strumienie krótkie (1k–28k bit ≪ NIST ~10⁶) → p-value orientacyjne.
-- **Prezentacja rozbudowana**: slajdy TRNG (bias LSB, NIST) + ARM (dowód XSCT), F5 przeramowany „od projektu do krzemu". GitHub Pages.
-- **Dokumentacja zaktualizowana** do stanu finalnego (README, PROJECT_GUIDE, analysis/README, ten dziennik).
+## 2026-06-15 — Prezentacja końcowa, uporządkowanie repozytorium
 
-### Stan: rdzeń + ARM + TRNG na krzemie. Prezka na GitHub Pages.
+- Prezentacja końcowa (HTML): teoria → architektura → tor pomiarowy → symulacje → wyniki z krzemu.
+- Odtworzenie Block Design ze skryptu `system_bd.tcl` w osobnym projekcie (xc7z020) — materiał do dokumentacji.
+- Weryfikacja wartości pomiarowych skryptem (carry_16: 134.37 MHz, σ 17.3 kHz, 129 ppm — zgodne z prezentacją).
+- Reorganizacja repozytorium: `measurements/` (dane z krzemu), `analysis/figures/` (wykresy),
+  starsze wersje przeniesione do `past_versions/`. Dokumentacja zaktualizowana do stanu finalnego.
 
----
+## 2026-06-10 — Pomiary na krzemie (kampania ILA)
 
-## Sesja 6 — 2026-06-15 (prezentacja końcowa + porządki + audyt)
+- **Loopback** (`async_ro_loopback.v`): pętla off-chip przez Pmod (JE1↔JE2), ~32 MHz.
+- **ILA na `freq_count`**: capture przez JTAG; storage qualification (`freq_valid==1`) → 4096 osobnych
+  okien 1 ms = rozkład do analizy jittera. Obejście limitu długości ścieżki dbg_hub (subst dysku).
+- **Zwiększenie rozdzielczości**: prescaler /256 → /16 (DIV_BITS=4), sync WIDTH 24→4 (7.8 MHz, mierzalny).
+  Wszystkie cztery warianty mierzalne; rozkład jittera w pełni rozdzielony (carry: 129 ppm).
+- Skrypty analizy: `ila_to_freq.py`, `ila_collect.py` (krzywa f(N) + eksport CSV dla Excela),
+  `ila_jitter.py` (histogramy, σ).
 
-**Cel:** domknąć prezentację końcową, posprzątać repo, uczciwy audyt stanu.
+## 2026-06-09 — Uruchomienie na Zybo Z7-10
 
-### Zrobione
-- **Prezentacja końcowa** `prezka/prezentacja_wyniki.html` — 32 slajdy: teoria (paradygmat, 4 warianty, diagramy SVG) → pomiar (infra, BD/F5, walka z Vivado) → symulacje (7 waveformów, jeden na slajd) → wyniki realne. Screeny skalowane (`object-fit`, portretowe nie rozjeżdżają się).
-- **Block Design odzyskany** — otwarty z `system_bd.tcl` w osobnym projekcie xc7z020, screen do prezki (slajd F5). Pliki BD cały czas były na dysku (wypięte z .xpr w sesji 4), nic nie zginęło.
-- **Audyt liczb** — zweryfikowane realne wartości ze skryptem (carry_16: 134.37 MHz/σ17.3/129ppm itd. — zgodne z prezką). Zero mocków w danych, f(N) w prezce z realnego `real_fN.csv`.
-- **Wielkie porządki w repo:**
-  - `measurements/` — realne CSV z krzemu (było w `fpga_project/oscillator/`), drift do `measurements/drift/`, stare /256 do `measurements/past_versions/old_256/`
-  - `analysis/figures/` — realne histogramy + f(N); legacy (syntetyczne skrypty/CSV/figi, UART) → `analysis/past_versions/`
-  - `docs/past_versions/` — przestarzałe (HW_CHECKLIST ZedBoard, runbook 02.06, syntetyczne figi)
-  - outer `files/` (stare planowanie) → `repo/past_versions/planning_docs/`
-- **Aktualizacja docs** — `PROJECT_GUIDE.md`, `analysis/README.md`, `docs/README.md` przepisane na stan finalny (Zybo /16 ILA). Wcześniej opisywały stary ZedBoard /256 — sprzeczność z rzeczywistością naprawiona.
+- Zmiana platformy na Zybo Z7-10 (xc7z010clg400-1); top `top_system_zybo` (standalone PL).
+- `zybo_pins.xdc` (zegar 125 MHz, SW0-3, LED0-3, Pmod JE) + `ALLOW_COMBINATORIAL_LOOPS`.
+- Bitstream wygenerowany (0 errors, 77 CARRY4); konfiguracja na płytce potwierdzona.
+- Demonstracja: LD3 miga dla wariantu sync, świeci ciągle dla async (oscylacja setki MHz).
+- Rozwiązano konflikt wielu topów / zablokowanego BD po zmianie części (BD zachowany w git i kopii zapasowej).
 
-### Kierunki rozwoju (na ten moment)
-- f(T) z XADC (wymaga PS / PL XADC + grzanie), phase locking, walidacja SDF vs HW
-- AXI/ARM (zaprojektowany; uruchomiony w sesji 7)
+## 2026-06-02 — Tor pomiarowy i Block Design
 
-### Stan: rdzeń na krzemie, pomiary realne, dokumentacja spójna.
+- `freq_counter` (testbench `tb_freq_counter`): 25 MHz → 249 zboczy/okno; pokazany limit Nyquista.
+- `async_prescaler` (ripple /2^N taktowany ringiem): `tb_prescaler_chain` 320 MHz → /16 → odzysk 318 MHz.
+- **F5 Block Design**: `freq_counter_axi` (slave AXI4-Lite) + `osc_axi_system`, Zynq PS7 + AXI Interconnect,
+  adres 0x43C00000; bitstream 0 errors.
+- Aplikacja bare-metal ARM (`main.c`): odczyt freq przez AXI, eksport CSV przez UART; build w SDK.
+- Pakiet analizy w Pythonie (przygotowany wstępnie na danych syntetycznych — później zastąpiony danymi z krzemu).
 
----
+## 2026-05-19 — Rdzeń CARRY4 + baseline
 
-## Sesja 5 — 2026-06-10 (pomiary na krzemie + kampania)
-
-**Cel:** realne pomiary przez ILA, loopback, pełna kampania.
-
-### Zrobione
-- **Loopback realny** — `async_ro_loopback.v`: inwerter+OBUF→pin→zworka→IBUF, pętla off-chip. Zworka JE1(V12)↔JE2(W16) kabelkiem M-M (lutowana prowizorka, przegwizdana). DZIAŁA: ~33 MHz.
-- **ILA na freq_count** — mark_debug + Set Up Debug, capture przez JTAG. Long-path fix: `subst X:` (dbg_hub limit 146 znaków). MU_CNT=2 (capture control wymaga ≥2).
-- **Storage qualification** — C_EN_STRG_QUAL + bufor 4096, capture freq_valid==1 → 4096 osobnych okien 1ms = jitter.
-- **Pierwsze realne pomiary (zero mocków):**
-  - carry tap15: 142 MHz → 134 MHz (DRIFT termiczny ~5%, chip się grzał — EXP_03 gratis)
-  - loopback: 32.6 MHz
-  - jitter: carry 862 ppm, loopback 3604 ppm (loopback 4× głośniejszy)
-- **Excel PL fix** — `ila_collect.py` daje CSV ze średnikami + przecinkiem dziesiętnym (polski Excel czyta kolumny). Plus `ila_jitter.py` (histogram).
-- **Upgrade rozdzielczości** — prescaler /256→/16 (DIV_BITS=4) + sync_baseline WIDTH 24→4 (7.8MHz, mierzalny). Wszystkie 4 warianty mierzalne, jitter finer.
-
-### Nowe skrypty analizy
-`ila_to_freq.py`, `ila_collect.py` (Excel PL + f(N)), `ila_jitter.py` (histogram σ).
-
-### Lekcje
-- ILA dbg_hub: ścieżka temp <146 znaków → `subst X:` na repo
-- Capture control: MU_CNT≥2, C_EN_STRG_QUAL true, Capture Setup (nie Trigger) = storage qualifier
-- Export MUSI być Format=CSV (nie .ila natywny binarny)
-- /256 dawało LSB-limited jitter (2 wartości) → /16 dla finer
-
-### Stan: realne pomiary z krzemu. Kampania w toku.
-
----
-
-## Sesja 4 — 2026-06-09 (Zybo na żywo)
-
-**Cel:** uruchomienie na fizycznej płytce. Jamro dał **Zybo Z7-10 (xc7z010clg400-1)** — inny chip niż ZedBoard (xc7z020).
-
-### Zrobione
-- **Pivot na Zybo Z7-10** — zmiana części xc7z020→xc7z010, top = `top_system_zybo` (standalone PL, bez PS)
-- **`zybo_pins.xdc`** — piny Zybo (clk 125MHz L16, SW0-3, LED0-3, Pmod JE) + `ALLOW_COMBINATORIAL_LOOPS`
-- **Bitstream `top_system_zybo.bit`** wygenerowany, 0 errors, 77 CARRY4
-- **FLASH NA PŁYTCE — DZIAŁA** ✓ Ring oscillator na realnym krzemie:
-  - LD0 miga ~2Hz (alive, PL żyje)
-  - SW0/SW1 → mux wariantu (LD1/LD2 echo)
-  - LD3 = wybrany oscylator: **miga dla sync (00), ciągły dla async** (ring setki MHz, za szybki dla oka) — wizualny dowód różnicy sync vs async
-  - SW2/SW3 = strojenie tap CARRY4
-
-### Walka z Vivado (lekcja)
-- Multi-top ambiguity (top_system / top_system_zybo / osc_axi_system) → Vivado auto-top ciągle nadpisywał. Popup "auto pick top" + tryb hierarchii.
-- BD (system.bd) pod ZedBoard zablokowany po zmianie części → psuł walidację hierarchii, IP locked errors.
-- **Rozwiązanie:** usunięto z PROJEKTU (nie z dysku/git): system.bd + wrapper + osc_axi_system.v + freq_counter_axi.v + top_system.v. Został top_system_zybo jako jedyny top → czysto. Re-add świeży top_system_zybo.v dobił indeksowanie.
-- BD/ZedBoard wszystko bezpieczne w git `fad7a58` + backup `../_backup_zybo/`.
-
-### Stan: ring DZIAŁA na krzemie. ~78%.
-Brakuje: twarde pomiary (CSV/UART wymaga BD+PS pod Zybo — odłożone), F6 loopback (zworka), raport.
-
----
-
-## Sesja 3 — 2026-06-02
-
-**Cel:** F5 (Block Design + ARM) na całość + F9 prep + audyt.
-
-### Zrobione
-- **F4 freq_counter** — testbench `tb_freq_counter`, pomiar działa: 25 MHz → 249 zbocz/10µs (oczek. 250). Pokazany limit Nyquista (tap=15 → aliasing). Commit `0bd4e2e`.
-- **F4+ async_prescaler** — ripple /2^N taktowany ringiem. `tb_prescaler_chain`: 320 MHz → /16 → freq_counter → odzysk 318 MHz. **Nyquist pokonany** (licznik 100 MHz mierzy 320 MHz ring). Commit `50d471a`.
-- **F5 Block Design** — `freq_counter_axi` (AXI4-Lite slave) + `osc_axi_system` (PL top). BD: Zynq PS7 + AXI Interconnect, adres 0x43C00000. Fix DRC LUTLP-1 przez `ALLOW_COMBINATORIAL_LOOPS`. **Bitstream wygenerowany, 0 errors.** Commit `fad7a58`.
-- **F5 kod C** — `sw/main.c`, bare-metal ARM: czyta freq przez AXI, sweep f(N), CSV przez UART. Build OK w SDK (`.elf`). Commit `d8dc0cd`.
-- **F9 prep** — pakiet `analysis/`: gen_sample_data, log_capture (UART), plot_fN/jitter/drift/fT, compare_sync_async. 5 wykresów z danych syntetycznych. Commit `2af8d10`.
-- **Audyt** — naprawiony mismatch schema CSV (main.c 5-kol → 7-kol kanoniczne, zgodne z analizą). Utworzony folder `docs/`.
-- **F8 prep — XADC** — `main.c` czyta temperaturę krzemu przez PS XADC (driver `xadcps`, `XPAR_XADCPS_0`). Realny `temp_c` w CSV zamiast placeholder → EXP_04 f(T) ruszy od razu na płytce. Zero zmian RTL/BD (PS XADC, nie PL).
-
-### Ustalenia techniczne
-- 2018.3 używa **SDK** (nie Vitis), Export = `.hdf`
-- XDC nie wspiera `for`/`foreach`/`if` → combined get_nets z `||`
-- prescaler osc-jako-zegar → warningi gated-clock (benign dla wewn. ringu)
-
-### Procent: ~65%
-
----
-
-## Sesja 2 — 2026-05-19 (popołudnie/wieczór)
-
-**Cel:** F2 rdzeń (CARRY4 ring) + decyzje Jamro.
-
-### Zrobione
-- **F2 CARRY4 ring** — `async_ro_carry`: 64× CARRY4 + LUT1 inverter. Walka z optymalizatorem (dont_touch/keep). Pierwsze podejście bez LOC → 64× DRC DXSTAT-3. Po fixach: Implementation Complete, 7.6 ns slack, 77 CARRY4 routed.
-- **F2.5 LUT-ring** — `async_ro_lut` 15 inwerterów (sugestia Jamro), 4-ty wariant.
-- **Sym oscylacji** — SDF post-impl hangował XSim (comb loop). Plan B: `ring_osc_mock` + `tb_ring_mock` behavioral → pokazuje oscylację + tap scaling + 2 warianty.
-- Git: .gitignore, cleanup artifacts.
-
-### Spotkanie Jamro (19.05)
-- Deadline 26.05: działająca sym ✅
-- CARRY4 lub LUT obojętne → zostajemy CARRY4 + LUT jako bonus
-- IO loopback w scope (F6), AXI-Lite "fajnie" (F5), ARM > MicroBlaze
-- 1 MHz nie twardy cel → prescaler
-
-### Commit: `06cdd90` (tydzien 2)
-
----
-
-## Sesja 1 — 2026-05-19 (start)
-
-**Cel:** Setup + F1 baseline.
-
-### Zrobione
-- Projekt Vivado, ZedBoard part, struktura plików
-- `sync_baseline.v` + szkielety + `top_system.v` + XDC
-- F1: synth/impl/bitstream OK, behavioral sim sync_baseline PASS (1.28µs okres)
-- **Errata E1:** ZedBoard ma 8 DIP → sw_tap 6-bit, piny M14/G15 usunięte
-
-### Commit: `07c221c` (v1)
-
----
-
-## Backlog (do zrobienia)
-
-| Faza | Zadanie | Blokada |
-|---|---|---|
-| F5-HW | Run na płytce, CSV na żywo przez UART | płytka |
-| F6 | IO Loopback (zworka Pmod) | płytka |
-| F7 | Pomiary podstawowe (f(N), jitter) | płytka |
-| F8 | Drift, f(T) z XADC, phase locking | płytka + XADC |
-| F9 | Raport końcowy PDF | — (można pisać) |
-
-## Konwencja commitów
-- Prefix fazą: `F4:`, `F5:`, `F9:`
-- Branch roboczy: `mcvicz`
-- Po fazie: commit + push origin mcvicz
+- `sync_baseline` (referencja synchroniczna): synteza/implementacja/bitstream, symulacja behawioralna OK.
+- **`async_ro_carry`**: ring 64× CARRY4 + inwerter LUT1; dyrektywy `dont_touch`/`keep` przeciw optymalizacji.
+  Implementacja zakończona, 77 CARRY4.
+- `async_ro_lut`: wariant ringu z 15 inwerterów LUT1.
+- Symulacja oscylacji: model behawioralny (`ring_osc_mock`/`tb_ring_mock`), ponieważ symulacja
+  post-implementation z SDF zawiesza XSim na pętli kombinacyjnej.
+- Ustalenia narzędziowe: Vivado 2018.3 = SDK (Export `.hdf`); XDC bez `for`/`foreach`/`if`.

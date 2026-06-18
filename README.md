@@ -11,7 +11,7 @@ licznikiem referencyjnym — **uruchomionych i zmierzonych na realnym krzemie**.
 
 ---
 
-## O co chodzi
+## Idea
 
 FPGA to maszyna synchroniczna — wszystko w rytm zegara. Ten projekt łamie ten paradygmat:
 budujemy **pętlę kombinacyjną bez zegara**, która oscyluje sama z siebie. Jej częstotliwość
@@ -31,7 +31,7 @@ Zastosowania: **TRNG** (kryptografia), **PUF** (fingerprint krzemu), **krzemowy 
 **Tor pomiarowy:** prescaler /16 (omija Nyquista) → freq_counter (okno 1 ms, TDC) →
 ILA przez JTAG (4096 okien, storage-qualified) → analiza w Pythonie.
 
-## Wyniki (z krzemu, zero mocków)
+## Wyniki (pomiary na krzemie)
 
 | Pomiar | Wynik |
 |---|---|
@@ -40,7 +40,7 @@ ILA przez JTAG (4096 okien, storage-qualified) → analiza w Pythonie.
 | Jitter (carry) | 129–148 ppm, rośnie z długością pętli |
 | IO-loopback przez Pmod | 32.1 MHz |
 | LUT ring | 112.7 MHz |
-| Zasoby | 77× CARRY4, 0 LUT w pętli (cel osiągnięty) |
+| Zasoby | 77× CARRY4, w pętli tylko 1× LUT1 (inwerter), 0 LUT w łańcuchu opóźnienia |
 | **ARM/AXI na Zybo (F5)** | ARM Cortex-A9 czyta ring przez AXI4-Lite na krzemie (XSCT) |
 | **TRNG z jitteru + NIST** | surowe LSB 5/9; XOR + von Neumann → NIST 9/9 (`analysis/trng/`) |
 

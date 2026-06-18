@@ -1,7 +1,7 @@
 # Analiza danych pomiarowych (realne, z ILA)
 
-Skrypty Python do analizy realnych eksportów ILA z ring oscillatora i generacji
-wykresów. **Zero mocków — wszystko z krzemu (Zybo Z7-10).**
+Skrypty Python do analizy eksportów ILA z ring oscillatora i generacji wykresów.
+Dane pochodzą wyłącznie z pomiarów na krzemie (Zybo Z7-10).
 
 Dane wejściowe: `../measurements/` (surowe CSV z Hardware Manager).
 Wykresy wyjściowe: `figures/`.
@@ -70,7 +70,7 @@ python3 ila_jitter.py ../measurements/drift/carry_16_warm_longer.csv longer
 | `fig_jitter_lut.png` | LUT ring 113 MHz |
 | `fig_jitter_cold/warm/longer.png` | drift termiczny (Δf poniżej szumu) |
 
-Te same PNG (skopiowane) są w prezce: `../docs/presentation/figures/`.
+Te same PNG (kopie) znajdują się w prezentacji: `../docs/presentation/figures/`.
 
 ---
 
@@ -82,7 +82,7 @@ Pipeline: LSB z `freq_count` → strumień bitów → testy losowości. Wejście
 - `figures/` — bias, jitter, autokorelacja, entropia, **heatmapa NIST**
 - `REPORT.md` — werdykt, `results.json` — wyniki maszynowe
 
-Wniosek (uczciwie): surowe LSB mają korelację strukturalną (carry_64 NIST 5/9); po
+Wniosek: surowe LSB mają korelację strukturalną (carry_64 NIST 5/9); po
 **XOR-combine + von Neumann** → NIST 9/9. Strumienie krótkie (1k–28k bit ≪ NIST ~10⁶)
 → p-value orientacyjne. Szczegóły: `trng/REPORT.md`.
 

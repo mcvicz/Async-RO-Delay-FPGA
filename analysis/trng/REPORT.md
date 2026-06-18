@@ -84,7 +84,7 @@ Metryki ent (ideały): entropia 8.0 bit/bajt, średnia 127.5, korelacja szeregow
 Najwięcej PASS przy największej przepływności: **`xorw_pool_good`** (NIST 9/9, H_min=0.9899 bit/bit, ent=7.8738 bit/bajt, n=10240 bitów).
 
 
-> **Do zastosowań kryptograficznych** rekomenduję jednak **`vn_pool_good` / `vn_xor_good` (von Neumann)** — daje *dowodliwie* nieobciążone wyjście niezależnie od wyniku testów empirycznych, kosztem ~75% bitów. `xorw_*`/`xor_combine_*` (wybielanie/piling-up) przechodzą testy i są wydajniejsze, ale gwarancja jest statystyczna, nie strukturalna. Najlepsza praktyka produkcyjna: **XOR-combine niezależnych RO → von Neumann → (opcjonalnie) hash/CBC-MAC jako conditioner** (NIST SP800-90B).
+> **Do zastosowań kryptograficznych** zalecane są jednak **`vn_pool_good` / `vn_xor_good` (von Neumann)** — dają *dowodliwie* nieobciążone wyjście niezależnie od wyniku testów empirycznych, kosztem ~75% bitów. `xorw_*`/`xor_combine_*` (wybielanie/piling-up) przechodzą testy i są wydajniejsze, ale gwarancja jest statystyczna, nie strukturalna. Najlepsza praktyka produkcyjna: **XOR-combine niezależnych RO → von Neumann → (opcjonalnie) hash/CBC-MAC jako conditioner** (NIST SP800-90B).
 
 
 **Wnioski metodyczne:**

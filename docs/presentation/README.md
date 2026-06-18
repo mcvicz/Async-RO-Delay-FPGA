@@ -4,8 +4,8 @@ Prezentacja końcowa projektu — otwórz w przeglądarce.
 
 | Plik | Co |
 |---|---|
-| `prezentacja_koncowa.html` | **Prezentacja końcowa** — 32 slajdy, realne wyniki z krzemu (Zybo Z7-10). Teoria → pomiar → symulacje → wyniki. |
-| `figures/` | Obrazy do prezentacji (screeny, waveformy, wykresy, foto płytki, Device View, Block Design). |
+| `prezentacja_koncowa.html` | **Prezentacja końcowa** — wyniki pomiarów z krzemu (Zybo Z7-10). Teoria → architektura → pomiar → symulacje → wyniki. |
+| `figures/` | Obrazy do prezentacji (zrzuty ekranu, przebiegi, wykresy, zdjęcie płytki, Device View, Block Design). |
 | `past_versions/prezentacja_koncepcja.html` | Pierwsza prezentacja (zapowiedź projektu, sprzed pomiarów). |
 
 ## Sterowanie

@@ -2,8 +2,8 @@
 // main.c -- bare-metal ARM (Zynq PS7 Cortex-A9) odczyt freq_counter przez AXI
 //           Zybo Z7-10. Wypisuje CSV na UART1 (PuTTY 115200 8N1).
 //
-// Wklej do Xilinx SDK 2018.3: app 'osc_freq_read' -> src/helloworld.c.
-// XADC celowo WYCIETY (nie wymagany do demo, usuwa ryzyko kompilacji).
+// Aplikacja bare-metal dla Xilinx SDK 2018.3 (app 'osc_freq_read', src/helloworld.c).
+// Odczyt XADC pominiety (niewymagany dla tego toru pomiarowego).
 //
 // MAPA REJESTROW (offset od bazy AXI = 0x43C00000):
 //   0x00 freq_count [31:0]  RO -- zbocza w oknie 1 ms (po prescalerze /256)

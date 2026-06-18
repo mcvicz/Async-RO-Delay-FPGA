@@ -1,46 +1,30 @@
-# docs/ — dokumentacja i dziennik projektu
+# docs/ — dokumentacja projektu
 
-Folder na bieżąco aktualizowany, commitowany z projektem.
+## Pliki
 
-## Pliki (aktualne)
-
-| Plik | Co |
+| Plik | Zawartość |
 |---|---|
-| `PROJECT_GUIDE.md` | **Główny dokument** — architektura, moduły, tor pomiarowy, eksperymenty, errata. Stan finalny (Zybo + ILA). |
-| `MEASUREMENT_PLAN.md` | Matryca pomiarów ILA — które switche, jakie nazwy CSV, oczekiwane wartości. |
-| `progress-history.md` | Dziennik zmian — chronologia sesji, commity, decyzje. Dopisujemy po każdej sesji. |
+| `PROJECT_GUIDE.md` | Główny dokument techniczny — architektura, moduły, tor pomiarowy, eksperymenty, errata. |
+| `MEASUREMENT_PLAN.md` | Matryca pomiarów ILA — ustawienia przełączników, nazwy plików CSV, oczekiwane wartości. |
+| `progress-history.md` | Chronologia prac (dziennik zmian). |
+| `presentation/` | Prezentacja końcowa (HTML) — źródło GitHub Pages. |
 
-## Struktura repo (gdzie co)
+## Struktura repozytorium
 
 ```
-Async-RO-Delay-FPGA/          <- repo git
-  docs/                       <- ta dokumentacja + ZRODLO GitHub Pages
-    index.html                <- landing (redirect na prezentacje)
-    presentation/             <- PREZENTACJA koncowa (prezentacja_koncowa.html, 32 slajdy)
-      figures/                <- 14 uzywanych obrazow
-      past_versions/          <- stara koncepcja (zapowiedz)
-    past_versions/            <- przestarzałe (ZedBoard plan, stary runbook, syntetyczne figi)
-  analysis/                   <- skrypty ILA + realne wykresy
-    figures/                  <- realne histogramy + f(N)
-    past_versions/            <- legacy: syntetyczne skrypty/CSV/figi, UART
-  measurements/               <- REALNE dane z krzemu (CSV z ILA)
-    drift/                    <- pomiary driftu (cold/warm/longer)
-    past_versions/old_256/    <- stare pomiary /256
-  fpga_project/oscillator/    <- projekt Vivado (RTL, XDC, bitstream)
-
-(poza repo git, w repo/ — historia, nie wersjonowane):
-  prezka/                     <- stara robocza kopia prezki (kanon jest w docs/presentation/)
-  past_versions/planning_docs <- stare planowanie (PLAN, STATUS, FAZA_1, instrukcje...)
-  _backup_zybo/               <- backup BD/topów sprzed pivotu
+Async-RO-Delay-FPGA/
+  docs/                       dokumentacja + źródło GitHub Pages
+    index.html                  landing (przekierowanie do prezentacji)
+    presentation/               prezentacja końcowa (prezentacja_koncowa.html)
+  analysis/                   skrypty analizy (ILA) + wykresy (figures/) + TRNG (trng/)
+  measurements/               dane pomiarowe z krzemu (CSV z ILA), drift/
+  arm_zybo/                   tor PS+PL: ARM czyta ring przez AXI4-Lite (skrypty + opis)
+  fpga_project/oscillator/    projekt Vivado (RTL, XDC, Block Design, bitstream)
 ```
+
+Starsze/nieaktualne wersje plików przechowywane są w podkatalogach `past_versions/`.
 
 ## GitHub Pages
-Prezentacja hostowana: **https://mcvicz.github.io/Async-RO-Delay-FPGA/**
-(źródło: branch `mcvicz`, folder `/docs`, `.nojekyll`). Edycja → `docs/presentation/`.
 
-## Zasada
-- Po każdej sesji: wpis do `progress-history.md`
-- Zmiany architektury/modułów: aktualizuj `PROJECT_GUIDE.md`
-- Realne dane → `measurements/`, wykresy → `analysis/figures/`
-- Prezentacja → `docs/presentation/` (NIE stara `repo/prezka/`)
-- Co stare/nieaktualne, a szkoda wyrzucić → `past_versions/` (nie kasujemy historii)
+Prezentacja hostowana: **https://mcvicz.github.io/Async-RO-Delay-FPGA/**
+(źródło: gałąź `mcvicz`, katalog `/docs`, `.nojekyll`).
